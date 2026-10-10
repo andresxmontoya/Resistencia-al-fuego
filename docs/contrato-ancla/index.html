@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contrato ancla Éxito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Concepto: un dibujo nocturno de ingeniería. Cada capítulo toma el color de su elemento:
+   agua, fuego, zinc, cobre (nudo) y ceniza (Hartford). Lo único grande y atrevido es la tipografía condensada y el marco 3D. */
+:root{
+  --bg:#0a1520; --panel:#101f2d; --panel2:#152738; --line:#27415a; --fg:#e7eef4; --mute:#93a8b9;
+  --agua:#4cc3d9; --fuego:#ff7a3d; --zinc:#c3cfd8; --cobre:#e09a6b; --ceniza:#b8afa3; --ok:#6fd08c; --warn:#f0c14b; --bad:#ff6b5e;
+  --acc:var(--zinc); --on-acc:#0a1520;
+  --d:'Big Shoulders Display','Arial Narrow',Impact,sans-serif; --b:'Instrument Sans',system-ui,sans-serif; --m:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#edf1f4; --panel:#ffffff; --panel2:#f3f6f8; --line:#c5d1da; --fg:#0e1c28; --mute:#4d6172;
+  --agua:#0a7f94; --fuego:#c2410c; --zinc:#46596a; --cobre:#a4521f; --ceniza:#6a6258; --ok:#1b7a3a; --warn:#8a6100; --bad:#b3261e; --on-acc:#ffffff; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#edf1f4; --panel:#ffffff; --panel2:#f3f6f8; --line:#c5d1da; --fg:#0e1c28; --mute:#4d6172;
+  --agua:#0a7f94; --fuego:#c2410c; --zinc:#46596a; --cobre:#a4521f; --ceniza:#6a6258; --ok:#1b7a3a; --warn:#8a6100; --bad:#b3261e; --on-acc:#ffffff; color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--b);padding-inline:0;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:1140px;margin:0 auto;padding-inline:20px}
+img{max-width:100%;height:auto;display:block}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+
+/* barra */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:14px;align-items:center;justify-content:space-between;padding-block:9px}
+.bar nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.bar nav a{font:500 12px/1 var(--m);text-decoration:none;color:var(--mute);padding:8px 10px;border-radius:99px;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
+.bar nav a:hover{color:var(--fg);background:var(--panel)}
+.brand{font:800 18px/1 var(--d);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.tbtn{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:6px 12px;font:500 12px var(--m);cursor:pointer;white-space:nowrap}
+
+/* hero */
+.hero{position:relative;padding-block:28px 8px;border-bottom:1px solid var(--line);--acc:var(--zinc)}
+.hero h1{font:900 clamp(52px,11.5vw,150px)/.88 var(--d);text-transform:uppercase;margin:0;letter-spacing:-.01em;position:relative;z-index:2;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--agua)}
+.hero .sub{max-width:52ch;color:var(--mute);font-size:18px;position:relative;z-index:2;margin:14px 0 0}
+#heroCv{position:absolute;inset:0;width:100%;height:100%;z-index:1;touch-action:pan-y;cursor:grab}
+.heroBox{position:relative;min-height:520px;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:20px;pointer-events:none}
+.heroBox>*{pointer-events:none}
+.hint{font:500 12px var(--m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase;margin-top:14px;position:relative;z-index:2}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:26px}
+.nums div{background:var(--bg);padding:14px 16px}
+.nums b{display:block;font:800 40px/1 var(--d);letter-spacing:.01em}
+.nums span{font:400 12px/1.35 var(--m);color:var(--mute)}
+
+.banner{padding-block:34px 0;border-bottom:1px solid var(--line)}
+.banner .fig{margin-bottom:34px}
+.banner img{width:100%;border-radius:4px}
+/* capítulos */
+.cap{padding-block:72px 40px;border-bottom:1px solid var(--line)}
+.cap[data-el=agua]{--acc:var(--agua)} .cap[data-el=fuego]{--acc:var(--fuego)} .cap[data-el=zinc]{--acc:var(--zinc)}
+.cap[data-el=cobre]{--acc:var(--cobre)} .cap[data-el=ceniza]{--acc:var(--ceniza)} .cap[data-el=zinc2]{--acc:var(--zinc)}
+.kick{font:500 12px var(--m);letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.cap h2{font:900 clamp(52px,10vw,120px)/.9 var(--d);text-transform:uppercase;margin:6px 0 18px;text-wrap:balance}
+.cap h2 span{color:var(--acc)}
+.lead{font-size:19px;max-width:60ch;margin:0 0 28px}
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:34px;align-items:start}
+@media (max-width:860px){.cols{grid-template-columns:minmax(0,1fr)}}
+.prose p{margin:0 0 14px;max-width:62ch}
+.prose h3{font:700 22px/1.2 var(--d);letter-spacing:.04em;text-transform:uppercase;margin:24px 0 8px;color:var(--acc)}
+.small{font-size:13px;color:var(--mute)}
+.mono{font-family:var(--m)}
+.tag{display:inline-block;font:500 11px var(--m);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);border-radius:99px;color:var(--mute)}
+
+/* paneles interactivos */
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;min-width:0}
+.lab h4{margin:0 0 12px;font:500 12px var(--m);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:14px}
+.ctl label{display:block;font:500 12px var(--m);color:var(--mute);margin-bottom:4px}
+.ctl output{color:var(--fg)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=number],select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.out div{background:var(--panel2);border-radius:4px;padding:10px 12px;min-width:0}
+.out b{display:block;font:800 30px/1.05 var(--d);color:var(--acc);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.out span{font:400 11px/1.3 var(--m);color:var(--mute)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--panel2);border-radius:99px;padding:6px 12px;font:500 12px var(--m);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.verdict{margin-top:12px;padding:10px 12px;border-left:3px solid var(--acc);background:var(--panel2);font-size:14px}
+.verdict.bad{border-color:var(--bad)} .verdict.warn{border-color:var(--warn)} .verdict.ok{border-color:var(--ok)}
+canvas{display:block;width:100%;max-width:100%}
+.fig{margin:0;min-width:0}
+.fig img{border:1px solid var(--line);border-radius:4px;background:#000}
+.fig figcaption{font:400 12px/1.45 var(--m);color:var(--mute);margin-top:6px}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:22px}
+.callout{border:1px solid var(--line);border-left:4px solid var(--acc);background:var(--panel);padding:14px 16px;margin:18px 0;border-radius:4px}
+.callout b{color:var(--acc)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
+th{font:500 11px var(--m);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.scroll{overflow-x:auto}
+
+/* gauge */
+.gauge{position:relative;height:46px;margin:30px 0 4px;background:linear-gradient(90deg,var(--line) 0 var(--g0),var(--ok) var(--g0) var(--g1),var(--warn) var(--g1) var(--g2),var(--bad) var(--g2) 100%);border-radius:3px}
+.gauge i{position:absolute;top:-6px;bottom:-6px;width:4px;background:var(--fg);border-radius:2px;transition:left .2s}
+.gauge u{position:absolute;top:-22px;font:500 11px var(--m);text-decoration:none;transform:translateX(-50%);color:var(--fg);white-space:nowrap}
+.gticks{position:relative;height:16px;font:400 11px var(--m);color:var(--mute)}
+.gticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.glegend{display:flex;gap:14px;flex-wrap:wrap;font:400 11px var(--m);color:var(--mute);margin-top:6px}
+.glegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* línea de tiempo */
+.tl{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin:6px 0 12px}
+.tl button{border:0;background:var(--panel2);padding:10px 4px;cursor:pointer;text-align:center;font:500 11px/1.25 var(--m);border-top:4px solid var(--line);color:var(--mute)}
+.tl button[aria-pressed=true]{border-top-color:var(--acc);color:var(--fg);background:var(--panel)}
+@media (max-width:640px){.tl{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.bars{display:grid;gap:8px;margin-top:8px}
+.bar1{display:grid;grid-template-columns:110px 1fr 90px;gap:10px;align-items:center;font:400 12px var(--m)}
+.bar1 .tr{height:18px;background:var(--panel2);border-radius:2px;overflow:hidden}
+.bar1 .tr i{display:block;height:100%;background:var(--acc);transition:width .35s}
+@media (max-width:520px){.bar1{grid-template-columns:80px 1fr 70px}}
+
+/* hitos */
+.hitos{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-bottom:14px}
+.hitos button{border:1px solid var(--line);background:var(--panel);padding:12px 8px;cursor:pointer;text-align:left;border-radius:4px;min-width:0}
+.hitos button b{display:block;font:800 30px/1 var(--d);color:var(--mute)}
+.hitos button span{font:500 11px/1.25 var(--m);color:var(--mute);display:block;overflow-wrap:anywhere}
+.hitos button[aria-pressed=true]{background:var(--acc);border-color:var(--acc)}
+.hitos button[aria-pressed=true] b,.hitos button[aria-pressed=true] span{color:var(--on-acc)}
+@media (max-width:760px){.hitos{grid-template-columns:repeat(3,minmax(0,1fr))}}
+ul.clean{margin:0;padding-left:18px} ul.clean li{margin-bottom:6px}
+
+footer{padding-block:48px 70px}
+footer .row{display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+footer img.logo{width:150px;border-radius:4px}
+.pend{columns:2 300px;gap:30px}
+.pend li{break-inside:avoid;margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.gauge i,.bar1 .tr i{transition:none}}
+</style>
+</head><body>
+<style>
+.hero2{padding-block:44px 10px;border-bottom:1px solid var(--line);--acc:var(--cobre)}
+.hero2 h1{font:900 clamp(56px,12vw,160px)/.86 var(--d);text-transform:uppercase;margin:0 0 16px;text-wrap:balance}
+.hero2 h1 em{font-style:normal;color:var(--cobre)}
+.hero2 .sub{max-width:60ch;color:var(--mute);font-size:18px;margin:0}
+.dec{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:26px}
+.dec div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--acc);padding:14px 16px;border-radius:4px;min-width:0}
+.dec b{display:block;font:800 22px/1.1 var(--d);letter-spacing:.03em;text-transform:uppercase;margin-bottom:6px}
+.dec span{font-size:14px;color:var(--mute)}
+.cap[data-el=op]{--acc:var(--agua)} .cap[data-el=riesgo]{--acc:var(--fuego)} .cap[data-el=plazo]{--acc:var(--warn)} .cap[data-el=dec]{--acc:var(--ok)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.chips .seg{align-items:center}
+.chips small{font:500 11px var(--m);color:var(--mute);letter-spacing:.08em;text-transform:uppercase;align-self:center}
+.rows{display:grid;gap:10px}
+.row{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:4px;padding:14px 16px;min-width:0}
+.row.alta{border-left-color:var(--bad)} .row.media{border-left-color:var(--warn)} .row.baja{border-left-color:var(--ok)}
+.row h3{margin:0 0 8px;font:800 22px/1.1 var(--d);letter-spacing:.03em;text-transform:uppercase;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.row h3 .tag{font-size:10px}
+.rg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;font-size:14px}
+@media (max-width:900px){.rg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.rg{grid-template-columns:minmax(0,1fr)}}
+.rg h5{margin:0 0 3px;font:500 11px var(--m);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.rg p{margin:0}
+.rg .ask{color:var(--fg)}
+.rg .ask h5{color:var(--ok)}
+.pill{font:500 11px var(--m);padding:2px 8px;border-radius:99px;border:1px solid currentColor;letter-spacing:.06em;text-transform:uppercase}
+.pill.alta{color:var(--bad)} .pill.media{color:var(--warn)} .pill.baja{color:var(--ok)}
+.gantt{display:grid;gap:5px;font:400 12px var(--m)}
+.gr{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center}
+@media (max-width:520px){.gr{grid-template-columns:96px minmax(0,1fr);gap:6px}}
+.gr .lb{color:var(--mute);line-height:1.25;overflow-wrap:anywhere}
+.tk{position:relative;height:22px;background:var(--panel2);border-radius:2px}
+.tk i{position:absolute;top:2px;bottom:2px;border-radius:2px;background:var(--acc);min-width:2px}
+.tk i.miss{background:repeating-linear-gradient(45deg,transparent 0 4px,var(--bad) 4px 6px);border:1px dashed var(--bad)}
+.tk i.ap{background:var(--warn)}
+.tk i.gh{background:transparent;border:1px solid var(--mute)}
+.tk u{position:absolute;top:0;bottom:0;width:1px;background:var(--line);text-decoration:none}
+.axis{position:relative;height:16px;color:var(--mute);font:400 10px var(--m)}
+.axis span{position:absolute;transform:translateX(-50%)}
+.chk{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.chk section{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;min-width:0}
+.chk h4{margin:0 0 8px;font:800 20px/1.1 var(--d);letter-spacing:.04em;text-transform:uppercase;color:var(--acc)}
+.chk label{display:flex;gap:9px;align-items:flex-start;font-size:14px;margin:0 0 7px;cursor:pointer}
+.chk input{margin-top:4px;accent-color:var(--acc);flex:none}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.opt{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.opt h4{margin:0 0 6px;font:800 24px/1.05 var(--d);letter-spacing:.03em;text-transform:uppercase}
+.opt p{margin:0 0 8px;font-size:14px}
+.opt .k{font:500 11px var(--m);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.cbtn{border:1px solid var(--acc);background:var(--acc);color:var(--on-acc);border-radius:99px;padding:8px 16px;font:600 13px var(--m);cursor:pointer}
+.stack{display:grid;gap:18px}
+.fbar{display:grid;grid-template-columns:150px minmax(0,1fr) 84px;gap:10px;align-items:center;font:400 12px var(--m)}
+@media (max-width:520px){.fbar{grid-template-columns:96px minmax(0,1fr) 64px}}
+.fbar .tr{height:20px;background:var(--panel2);border-radius:2px;position:relative;overflow:hidden}
+.fbar .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);transition:width .3s}
+.fbar.neg .tr i{background:var(--bad)}
+.fbar b{text-align:right;font-variant-numeric:tabular-nums}
+</style>
+
+<header class="bar"><div class="wrap">
+  <span class="brand">Contrato ancla · Éxito</span>
+  <nav aria-label="Secciones">
+    <a href="#promesa">Promesa y planos</a><a href="#nave">La nave</a><a href="#costos">25 años</a><a href="#riesgos">Fuego y agua</a><a href="#plazo">Entrega</a><a href="#lista">Condiciones</a><a href="#opciones">Opciones</a>
+  </nav>
+  <button class="tbtn" id="tt" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+</div></header>
+
+<main>
+<section class="hero2"><div class="wrap">
+  <div class="kick" style="font:500 12px var(--m);letter-spacing:.14em;text-transform:uppercase;color:var(--cobre)">Para quien decide en Almacenes Éxito</div>
+  <h1>Contrato ancla<br>a <em>25 años</em></h1>
+  <p class="sub">Qué implica para Éxito firmar y recibir esta bodega, si lo que entrega la presentación (centro logístico Medellín Sur, 50.000 m², estructura espacial) es lo que quedará en pie. Se contrasta lo prometido con lo que muestran los planos de la propia presentación y con el análisis técnico del sistema.</p>
+  <div class="nums" role="list">
+    <div role="listitem"><b>25 años</b><span>arrendamiento corporativo con Éxito como inquilino ancla</span></div>
+    <div role="listitem"><b>3 naves</b><span>2 de 20.000 m² (100 × 200 m) y 1 de 10.000 m²</span></div>
+    <div role="listitem"><b>14 meses</b><span>plazo de entrega que anuncia la presentación</span></div>
+    <div role="listitem"><b>48 m</b><span>luz real de la Sección AA, no los 100 m "sin columnas" de las diapositivas comerciales</span></div>
+    <div role="listitem"><b>USD 10,5 a 11 M</b><span>estructura y correas anunciadas, sin protección contra fuego ni mantenimiento</span></div>
+  </div>
+  <div class="dec">
+    <div><b>1. ¿Sirve a la operación?</b><span>Altura, retícula de columnas y flujo de montacargas durante 25 años, no solo el día de la entrega.</span></div>
+    <div><b>2. ¿Quién carga el riesgo?</b><span>Fuego, agua, mantenimiento y devolución al final: lo que hoy no tiene dueño en la presentación.</span></div>
+    <div><b>3. ¿Qué debe estar probado?</b><span>Autorización, cálculo revisado, ensayos y pruebas antes de firmar y antes de recibir.</span></div>
+  </div>
+  <p class="small" style="margin-top:16px">Esto es un análisis técnico, no asesoría legal ni financiera. Las cifras de costo y de mantenimiento son modelos con supuestos declarados, no cotizaciones. La decisión corresponde a Éxito con sus áreas jurídica, financiera, de riesgos y de operaciones.</p>
+</div></section>
+
+<section class="banner"><div class="wrap"><figure class="fig"><img src="img/render_bodegas.jpg" alt="Render de las tres bodegas de la presentación vistas desde el aire" width="1746" height="901"><figcaption>El conjunto de la presentación: tres naves tipo caja con la misma malla espacial como techo y pared.</figcaption></figure></div></section>
+
+<!-- PROMESA VS PLANOS -->
+<section class="cap" id="promesa" data-el="op"><div class="wrap">
+  <div class="kick">Sección 1 · Lo prometido y lo que muestran los planos</div>
+  <h2>Doce puntos<br><span>para firmar</span></h2>
+  <p class="lead">Cada fila compara lo que dice la presentación (con el número de diapositiva) con lo que se ve en sus dibujos o en el análisis, y qué debería exigir Éxito.</p>
+  <div class="chips">
+    <small>Gravedad</small>
+    <div class="seg" id="fSev" role="group" aria-label="Filtrar por gravedad"><button type="button" aria-pressed="true" data-v="">Todas</button><button type="button" aria-pressed="false" data-v="alta">Alta</button><button type="button" aria-pressed="false" data-v="media">Media</button><button type="button" aria-pressed="false" data-v="baja">Baja</button></div>
+  </div>
+  <div class="chips">
+    <small>Tema</small>
+    <div class="seg" id="fTema" role="group" aria-label="Filtrar por tema"></div>
+  </div>
+  <div class="rows" id="rows"></div>
+  <p class="small" id="rowsCount" style="margin-top:12px"></p>
+</div></section>
+
+<!-- LA NAVE -->
+<section class="cap" id="nave" data-el="op"><div class="wrap">
+  <div class="kick">Sección 2 · Operación</div>
+  <h2>La nave<br><span>con sus columnas</span></h2>
+  <p class="lead">La presentación vende "100 m de libertad logística" y "sin columnas". Las dos secciones muestran otra cosa. Para Éxito importa porque el layout de racks y el flujo de equipos se diseñan sobre esa retícula.</p>
+  <div class="figs" style="margin-top:0">
+    <figure class="fig"><img src="img/seccion_AA.jpg" alt="Sección AA: dos vanos con eje de columnas central" width="1443" height="491"><figcaption>Sección AA (diap. 17): "2 vanos de 50 m o más" entre la pared lateral y el centro de la nave. Ancho 98,80 m y 13 m de altura libre.</figcaption></figure>
+    <figure class="fig"><img src="img/seccion_BB.jpg" alt="Sección BB: columnas internas cada 22 a 26 metros" width="1995" height="502"><figcaption>Sección BB (diap. 17): 198,40 m de largo. Columnas en pares con arriostramiento vertical para el sismo.</figcaption></figure>
+  </div>
+  <div class="cols" style="margin-top:30px">
+    <div class="prose">
+      <h3>Qué cambia para el inquilino</h3>
+      <p>Con una línea de columnas en el centro, cada nave queda como dos bodegas de unos 50 m de ancho unidas por el techo. Los pasillos de racks, los muelles y las zonas de picking se acomodan alrededor de unas 9 a 10 columnas por nave, a 22 a 26 m una de otra.</p>
+      <p>Hay un segundo efecto, estructural. Esas columnas son pocas y del mismo sistema: cada una sostiene del orden de 2.000 m² de techo. Si una falla o se saca para reconfigurar el layout, la luz pasa de unos 48 m a unos 96 m en esa zona, y la relación luz/peralte sube de 31 a unos 62, fuera de cualquier rango citado.</p>
+      <p>En el esquema se puede hacer clic en una columna para quitarla y ver el efecto.</p>
+      <div class="callout"><b>Para el contrato.</b> El plano de planta de columnas debe ser un anexo, con la regla de que ninguna columna se retira ni se desplaza sin recálculo firmado. Si Éxito cuenta con una planta libre de 100 m para reconfigurar racks, la presentación no la sustenta.</div>
+    </div>
+    <div class="lab">
+      <h4>Esquema de una nave de 100 × 200 m (eje central)</h4>
+      <canvas id="planCv" height="360" aria-label="Planta esquemática de una nave con el eje central de columnas. Se puede hacer clic en una columna para retirarla."></canvas>
+      <div class="ctl" style="margin-top:12px">
+        <div><label for="pQ">Carga de cubierta: <output id="oQ"></output> kN/m² (supuesto)</label><input id="pQ" type="range" min="0.6" max="2" step="0.05" value="1.1"></div>
+        <div><label for="pH">Peralte d: <output id="oH"></output> m</label><input id="pH" type="range" min="1.2" max="2.4" step="0.02" value="1.54"></div>
+      </div>
+      <div class="seg" style="margin-bottom:8px"><button type="button" id="pReset">Restituir columnas</button></div>
+      <div class="out" id="planOut"></div>
+      <div class="verdict" id="planV"></div>
+      <p class="small" style="margin-bottom:0">Esquema, no plano: las 9 posiciones están a 22,4 y 25,6 m según la Sección BB y deben confirmarse con la planta oficial. La carga es un supuesto de orden de magnitud (peso propio ≈ 0,31, cubierta y equipos, carga viva 0,50) sin factores de continuidad.</p>
+    </div>
+  </div>
+  <div class="figs">
+    <figure class="fig"><img src="img/implantacion_muelles.jpg" alt="Implantación de las naves con unos 18 muelles de carga y la Gerencia de 2.500 m²" width="831" height="918"><figcaption>Implantación (diap. 7): unos 18 muelles de carga y la Gerencia de Operaciones de 2.500 m² incrustada entre naves. Las columnas de la Sección BB y los muelles comparten el mismo borde de nave.</figcaption></figure>
+    <div class="lab"><h4>Altura que promete la lámina</h4>
+      <p style="margin:0 0 10px">Diap. 2: 12 a 14 m y "7 a 8 niveles de paletización". Sección AA: 13 m libres. Diap. 24: sobre los nodos se cuelgan rociadores, ductos, iluminación y pasarelas.</p>
+      <div class="ctl"><div><label for="hLib">Altura libre bajo la malla: <output id="oHL"></output> m</label><input id="hLib" type="range" min="11" max="14" step="0.1" value="13"></div><div><label for="hN">Niveles de paletización: <output id="oHN"></output></label><input id="hN" type="range" min="5" max="9" step="1" value="7"></div></div>
+      <div class="out" id="hOut"></div>
+      <p class="small" style="margin:10px 0 0">Altura por nivel: la altura libre menos 1,0 m para rociadores y tuberías bajo la malla (supuesto), dividida entre niveles. La referencia real viene del proveedor de racks y de la norma de rociadores de la aseguradora.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 25 AÑOS -->
+<section class="cap" id="costos" data-el="plazo"><div class="wrap">
+  <div class="kick">Sección 3 · Los 25 años</div>
+  <h2>Lo que cuesta<br><span>mantenerla</span></h2>
+  <p class="lead">La presentación dice "mantenimiento mínimo": la membrana FiberTite no necesita repintado en más de 15 años. Eso es la cubierta sintética. La estructura galvanizada es otra cosa, y su costo cae tarde.</p>
+  <div class="cols">
+    <div class="prose">
+      <p>Modelo base (aproximación con precios unitarios supuestos, no cotizaciones): 15 campañas de inspección de 100 millones, 60 millones por año de correctivos, repintado del 25 % en el año 15 (1.800 millones) y repintado total en el año 25 (7.200 millones). Suma: 12.000 millones de pesos a 25 años, unos USD 3,7 M a 3.273 COP/USD.</p>
+      <p>Lo importante para el contrato es el calendario: el 60 % cae en el año 25, justo cuando termina el arriendo. Quien firme sin cláusula de reparto deja el repintado grande a quien esté en ese momento.</p>
+      <p>El zinc con 55 µm dura entre 13 y 26 años en ambiente C4 y entre 26 y 79 años en C3 (ISO 9223). Si el ambiente de Caldas resulta C4, el repintado total se adelanta a unos 13 años. Es el segundo escenario del gráfico.</p>
+      <div class="callout"><b>Fuera del modelo:</b> cubierta, canalones y bajantes, protección contra fuego, mantenimiento del cerramiento perimetral y el costo de volver a poner la bodega en uso mientras se repinta.</div>
+    </div>
+    <div class="lab">
+      <h4>Costo acumulado de mantenimiento de la estructura</h4>
+      <div class="seg" id="mScn" role="group" aria-label="Escenario de corrosión" style="margin-bottom:10px"><button type="button" aria-pressed="true" data-y="25">Base: repintado total en el año 25</button><button type="button" aria-pressed="false" data-y="13">Zinc C4: repintado total en el año 13</button></div>
+      <canvas id="mCv" height="260" aria-label="Costo acumulado de mantenimiento por año"></canvas>
+      <div class="ctl" style="margin-top:10px"><div><label for="mY">Año del contrato: <output id="oY"></output></label><input id="mY" type="range" min="0" max="25" step="1" value="15"></div></div>
+      <div class="out" id="mOut"></div>
+      <div class="verdict" id="mV"></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FUEGO Y AGUA -->
+<section class="cap" id="riesgos" data-el="riesgo"><div class="wrap">
+  <div class="kick">Sección 4 · Riesgos que la presentación no valora</div>
+  <h2>Fuego<br><span>y agua</span></h2>
+  <div class="stack">
+    <div class="cols">
+      <div class="prose">
+        <h3>Fuego: el ahorro anunciado</h3>
+        <p>La presentación anuncia un "ahorro directo de hasta USD 5 M frente a cerchas convencionales" (diap. 29). La tabla de la presentación da 10,5 a 11,0 M para la malla y 13 a 16 M para cerchas: una diferencia de 2,0 a 5,5 M.</p>
+        <p>Ninguna cifra incluye protección contra fuego. Cada nave de 20.000 m² supera el límite del tipo de riesgo moderado de la NSR-10 (13.300 m² por edificio), así que, salvo compartimentación, cae en el tipo alto: 180 minutos en columnas y cerchas y 90 en cubierta. El zinc se funde hacia 420 °C y un tubo desnudo alcanza esa temperatura en unos 2 a 5 minutos de incendio estándar.</p>
+        <p>La pintura intumescente cuesta más en tubos delgados (A/V alto). Un modelo térmico calibrado con CYPE da unos USD 4,0 M para R60 y unos 6,7 M para R90 sobre unos 30.700 m² de tubo. Pero la alternativa de cerchas también necesita protección, con perfiles más gruesos y menos superficie. Por eso el gráfico permite ajustar ese supuesto.</p>
+        <p class="small">Aquí interviene también la aseguradora: suele exigir una clasificación de riesgo y rociadores diseñados para la altura y la carga de fuego. Eso debe aclararse antes de firmar, no después.</p>
+      </div>
+      <div class="lab">
+        <h4>Ahorro anunciado frente a lo que falta (USD millones)</h4>
+        <div class="seg" id="fR" role="group" aria-label="Resistencia al fuego" style="margin-bottom:10px"><button type="button" aria-pressed="true" data-v="3.97">R60 (≈ 4,0 M)</button><button type="button" aria-pressed="false" data-v="6.7">R90 (≈ 6,7 M)</button></div>
+        <div class="ctl">
+          <div><label for="fS">Ahorro anunciado: <output id="oS"></output> M</label><input id="fS" type="range" min="2" max="5.5" step="0.1" value="5"></div>
+          <div><label for="fShare">Parte del fuego y del mantenimiento que la alternativa también pagaría: <output id="oSh"></output> % (supuesto)</label><input id="fShare" type="range" min="0" max="100" step="5" value="50"></div>
+        </div>
+        <div class="bars" id="fBars" style="gap:10px"></div>
+        <div class="verdict" id="fV"></div>
+        <p class="small" style="margin-bottom:0">Fuego: modelo térmico calibrado con CYPE (R60: 3,5 a 6,1 M, R90: 6,3 a 11,5 M en percentiles 10 a 90). Mantenimiento: 12.000 millones COP, supuesto. TRM 3.273,49. Son aproximaciones: variarán con precios y cotizaciones reales.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="prose">
+        <h3>Agua: cubierta horizontal en Caldas</h3>
+        <p>La Sección AA se diseña con "cubierta totalmente horizontal" (diap. 17), y el drenaje es un canalón de 400 mm con bajantes de 5" (diap. 27). Caldas recibe 2.523 mm al año y llueve unos 226 días.</p>
+        <p>Un milímetro de agua sobre una nave de 20.000 m² pesa 20 toneladas. Con 51 mm se igualan los 0,50 kN/m² de carga viva de cubierta: 1.020 toneladas. El número de bajantes sale del caudal: a 100 mm/h, una nave de 20.000 m² recibe unos 556 L/s.</p>
+        <p class="small">El caudal por bajante y la intensidad son supuestos: el diseñador hidráulico debe presentar su cálculo.</p>
+      </div>
+      <div class="lab">
+        <h4>Lluvia intensa sobre una nave</h4>
+        <div class="ctl">
+          <div><label for="rI">Intensidad: <output id="oRI"></output> mm/h</label><input id="rI" type="range" min="40" max="200" step="5" value="100"></div>
+          <div><label for="rC">Capacidad por bajante de 5": <output id="oRC"></output> L/s</label><input id="rC" type="range" min="4" max="25" step="1" value="10"></div>
+          <div><label for="rA">Área de la nave: <output id="oRA"></output> m²</label><select id="rA"><option value="20000" selected>20.000 m² (100 × 200)</option><option value="10000">10.000 m² (100 × 100)</option></select></div>
+        </div>
+        <div class="out" id="rOut"></div>
+        <div class="verdict" id="rV"></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ENTREGA -->
+<section class="cap" id="plazo" data-el="plazo"><div class="wrap">
+  <div class="kick">Sección 5 · Condiciones de entrega</div>
+  <h2>14 meses<br><span>¿desde cuándo?</span></h2>
+  <p class="lead">El plan de trabajo (diap. 28) tiene cuatro fases de 2, 3, 7 a 8 y 6 meses: sumadas dan 18 a 19. Para llegar a 14 se solapan. Y no aparece nada de lo que debe pasar antes y después.</p>
+  <div class="lab">
+    <h4>Cronograma de la presentación y lo que falta</h4>
+    <div class="ctl"><div><label for="gDel">Meses de trámites antes de empezar (supuesto): <output id="oGD"></output></label><input id="gDel" type="range" min="0" max="12" step="1" value="3"></div></div>
+    <div class="gantt" id="gantt"></div>
+    <div class="out" id="gOut"></div>
+    <p class="small" style="margin:10px 0 0">Solapes elegidos para sumar 14 meses (lectura del plan): diseño 0 a 2, acopio 1 a 4, fabricación 3 a 10,5, montaje 8 a 14. Las barras rayadas no tienen plazo en la presentación; la duración de los trámites y de las pruebas la fija el contrato.</p>
+  </div>
+  <div class="cols" style="margin-top:28px">
+    <div class="prose">
+      <h3>Qué no figura</h3>
+      <ul class="clean">
+        <li><b>Autorización del sistema no convencional</b> (Ley 400, art. 13). Sin ella, multa de unos 250 SMMLV y riesgo de suspensión.</li>
+        <li><b>Licencia de construcción y revisión independiente</b> del diseño estructural.</li>
+        <li><b>Estudio geotécnico:</b> la diap. 27 habla de limos y arcillas saturadas en la zona sur.</li>
+        <li><b>Ensayos de nodos y tornillos</b> por lotes: del orden de 220 a 290 ensayos para unos 9.800 nudos (90 % de confiabilidad, 90 a 95 % de confianza, sin fallas).</li>
+        <li><b>Protección contra fuego</b> aplicada y certificada, y rociadores recibidos por la aseguradora.</li>
+        <li><b>Pruebas de estanqueidad y de drenaje</b> antes de la recepción.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <h3>Qué debe entregar el proveedor</h3>
+      <ul class="clean">
+        <li>Memoria de cálculo firmada con una sola geometría (módulo 3,20 m y peralte único).</li>
+        <li>Planos "as built" y registro de trazabilidad de cada lote de nudos y tubos.</li>
+        <li>Medición de espesor de zinc por muestreo y plan de mantenimiento a 25 años.</li>
+        <li>Manual de uso: cargas máximas de colgado en nodos (rociadores, ductos, paneles solares).</li>
+        <li>Garantías y pólizas con plazo acorde al contrato, no solo a la obra.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- LISTA -->
+<section class="cap" id="lista" data-el="dec"><div class="wrap">
+  <div class="kick">Sección 6 · Condiciones previas</div>
+  <h2>Qué pedir<br><span>por área</span></h2>
+  <p class="lead">Cada condición se puede marcar como resuelta. El texto de lo pendiente se puede copiar para circularlo entre el equipo y el proveedor.</p>
+  <div class="chk" id="chk"></div>
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px"><button type="button" class="cbtn" id="cpy">Copiar lo pendiente</button><span class="small" id="cpyMsg" aria-live="polite"></span><span class="mono small" id="cnt"></span></div>
+  <textarea id="cpyTxt" readonly aria-label="Texto de lo pendiente" style="position:absolute;left:-9999px;top:0;width:1px;height:1px"></textarea>
+</div></section>
+
+<!-- OPCIONES -->
+<section class="cap" id="opciones" data-el="dec"><div class="wrap">
+  <div class="kick">Sección 7 · La decisión</div>
+  <h2>Cuatro<br><span>caminos</span></h2>
+  <div class="opts">
+    <div class="opt"><h4>1. Firmar con condiciones suspensivas</h4><p>El contrato solo entra en vigor, o el canon solo empieza, cuando estén la autorización, el cálculo revisado, el plan de fuego y las pruebas.</p><p><span class="k">Gana</span><br>Conserva la ubicación y el calendario. Traslada la carga de la prueba al promotor.</p><p><span class="k">Riesgo</span><br>Si las condiciones no se cumplen, hay que definir salidas y plazos desde el principio.</p></div>
+    <div class="opt"><h4>2. Pedir rediseño antes de firmar</h4><p>Exigir una retícula de columnas coherente con el layout de Éxito y un peralte justificado para la luz real.</p><p><span class="k">Gana</span><br>Resuelve de raíz la dependencia de pocas columnas y el R = 1,0.</p><p><span class="k">Riesgo</span><br>Retrasa; puede cambiar el costo y la propuesta de valor del promotor.</p></div>
+    <div class="opt"><h4>3. Comparar con una alternativa convencional</h4><p>Pedir un presupuesto completo, con fuego, mantenimiento y cubierta, de la malla y de cerchas o pórticos.</p><p><span class="k">Gana</span><br>Cifras comparables, sin el ahorro "hasta 5 M" de la presentación.</p><p><span class="k">Riesgo</span><br>Más tiempo y costo de estudio; el promotor puede preferir no cambiar.</p></div>
+    <div class="opt"><h4>4. No firmar por ahora</h4><p>Esperar a que la presentación se corrija y a que la autorización y el diseño avancen.</p><p><span class="k">Gana</span><br>Evita comprometerse a 25 años sobre información incompleta.</p><p><span class="k">Riesgo</span><br>Se puede perder la ubicación o el calendario operativo.</p></div>
+  </div>
+  <p class="small" style="margin-top:16px">Son caminos posibles, no recomendaciones jurídicas ni financieras. Éxito debe decidir con su asesoría legal, de riesgos y de seguros.</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p class="small">Fuentes: presentación "Centro logístico de cercanías Medellín Sur" (diapositivas citadas), análisis técnico del sistema de estructura espacial (página "Estructuras Espaciales - Éxito"), NSR-10 Título J, Ley 400 de 1997, ISO 9223, CYPE (precios de referencia). Los modelos de costo de fuego y mantenimiento son aproximaciones con supuestos declarados y no son cotizaciones.</p>
+</div></footer>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt=(x,d=0)=>x.toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+function fit(c,h){const r=window.devicePixelRatio||1,w=c.clientWidth||300;c.width=Math.round(w*r);c.height=Math.round(h*r);c.style.height=h+"px";const g=c.getContext("2d");g.setTransform(r,0,0,r,0,0);return{g,w,h}}
+const TRM=3273.49;
+const redraws=[];
+
+/* ===== tema ===== */
+$("tt").addEventListener("click",()=>{
+  const el=document.documentElement,cur=el.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");
+  el.setAttribute("data-theme",cur==="dark"?"light":"dark");redraws.forEach(f=>f());
+});
+
+/* ===== promesa vs planos ===== */
+const ROWS=[
+{t:"Operación",s:"alta",h:"Planta libre de 100 m",p:"“100 m de libertad logística”, “sin columnas”, flujo omnidireccional y reconfiguración sin restricciones (diap. 5, 6).",r:"La Sección AA muestra dos vanos de unos 50 m con eje de columnas al centro; la Sección BB, columnas cada 22 a 26 m en los 200 m (diap. 17).",i:"Racks, muelles y montacargas se acomodan a unas 9 a 10 columnas por nave. La reconfiguración del layout no es total.",e:"Planta de columnas como anexo contractual y layout de racks aprobado por Éxito sobre esa retícula."},
+{t:"Operación",s:"media",h:"Altura útil",p:"12 a 14 m de altura y 7 a 8 niveles de paletización (diap. 2).",r:"13 m libres en la Sección AA. De los nodos cuelgan rociadores, ductos, luminarias y pasarelas (diap. 24).",i:"La altura aprovechable para racks es la que queda bajo el punto más bajo de esas instalaciones, no los 13 m del dibujo.",e:"Altura libre mínima medida bajo el punto más bajo (malla, tuberías, luminarias), con tolerancia, como condición de recibo."},
+{t:"Estructura",s:"alta",h:"Geometría sin coincidir",p:"Módulo 3,20 m y altura 1,80 m (diap. 14); nodos en retícula de 3,00 m (diap. 13).",r:"Techo con tetraedros de 1,54 m y pared de 1,20 m (diap. 22). Con 48 a 50 m, L/d = 27 a 31; con 100 m sería 65.",i:"La presentación no tiene una geometría única. Sobre cuál se calcula define la rigidez, la flecha y el empozamiento.",e:"Memoria de cálculo firmada con una sola geometría y revisión independiente."},
+{t:"Estructura",s:"alta",h:"“Hiperestático” con pocas columnas",p:"Múltiples caminos de carga y redundancia superior ante sismo severo (diap. 12, 27).",r:"Unos 2.000 m² por columna, todas del mismo sistema, y R = 1,0 recomendado. Si falla una columna central, la luz pasa de 48 a unos 96 m (L/d ≈ 62).",i:"La redundancia de la malla ante carga vertical no se traslada a sismo y viento. Una falla puntual compromete una zona grande de techo.",e:"Análisis no lineal con imperfecciones, pérdida de una columna y colapso progresivo; diseño elástico (R = 1,0)."},
+{t:"Costos",s:"media",h:"Peso del acero",p:"“Reduce 30 % el peso: 600 t (−28,6 %)”; 30 a 32 kg/m² (1.600 t) frente a 45 a 60 kg/m² (2.600 t) (diap. 26).",r:"1.600 frente a 2.600 t es −38 %, y la diferencia es 1.000 t, no 600.",i:"Las cifras de la propia lámina no coinciden, y el peso es la base del precio de la estructura.",e:"Peso de acero garantizado en kg/m² con tolerancia y ajuste de precio por desviación."},
+{t:"Norma",s:"alta",h:"Cumplimiento de la NSR-10",p:"“Cumple rigurosamente” la NSR-10 (diap. 27).",r:"El nudo esférico atornillado no está en la NSR-10: es un sistema no convencional que requiere autorización (Ley 400, art. 13). Sin ella, multa de unos 250 SMMLV al mes.",i:"Riesgo de suspensión, de sanción y de no poder asegurar o recibir el edificio.",e:"Copia de la autorización de la Comisión Asesora como condición previa al inicio de obra."},
+{t:"Fuego",s:"alta",h:"Protección contra incendio",p:"“Máxima protección ignífuga e hidrófuga” en la cubierta (diap. 25). Sin partida de protección de la estructura.",r:"Naves de 20.000 m² superan el límite del tipo moderado (13.300 m²): tipo alto, 180 minutos en columnas y 90 en cubierta, salvo compartimentación. El zinc se funde hacia 420 °C.",i:"Costo modelado de unos USD 4 a 7 M que no aparece en la comparación, y un posible rechazo de la aseguradora.",e:"Clasificación del riesgo, resistencia exigida y solución firmadas por un especialista, con la partida y quién la paga."},
+{t:"Agua",s:"alta",h:"Drenaje de una cubierta horizontal",p:"Canalón de 400 mm con bajantes de 5” para lluvias tropicales (diap. 27); cubierta “totalmente horizontal” (diap. 17).",r:"Caldas: 2.523 mm al año. 51 mm sobre 20.000 m² son 1.020 t; a 100 mm/h entran unos 556 L/s por nave.",i:"Un canalón obstruido puede inundar el inventario y cargar la malla por encima de la carga viva.",e:"Diseño hidráulico con rebosaderos y pendiente mínima, y prueba de lluvia en la recepción."},
+{t:"Mantenimiento",s:"media",h:"“Mantenimiento mínimo”",p:"FiberTite libre de mantenimiento más de 15 años (diap. 29).",r:"Eso aplica a la membrana, no a la estructura. Zinc de 55 µm: 13 a 26 años en C4 y 26 a 79 en C3. Modelo: 12.000 millones COP a 25 años, 60 % en el año 25.",i:"Un costo diferido que cae al final del arriendo, sin dueño definido.",e:"Plan de mantenimiento, medición de espesores de zinc en la recepción y reparto del costo en el contrato."},
+{t:"Fin del contrato",s:"baja",h:"Devolución y reciclaje",p:"Estructura atornillada que permite su desmonte “al finalizar el ciclo de 25 años” (diap. 27).",r:"No se declara una vida útil de diseño ni quién desmonta, restaura o responde por el estado al devolver.",i:"Éxito puede encontrarse con obligaciones de restitución sin haberlas medido.",e:"Cláusula de vida útil, estado de devolución y reversión del activo."},
+{t:"Calidad",s:"media",h:"Ensayos de nudos y tornillos",p:"Nodos G1045 y tornillos grado 8/10 (diap. 20). No se menciona plan de ensayos.",r:"Para 90 % de confiabilidad en unos 9.800 nudos: unos 22 ensayos por lote de 1.000 (29 con 95 % de confianza), sin fallas.",i:"Sin ensayos por lote no hay evidencia de que lo fabricado se parezca a lo calculado.",e:"Plan de muestreo, ensayos de lote y trazabilidad como condición de recibo de cada despacho."},
+{t:"Plazo",s:"alta",h:"14 meses de entrega",p:"Fases de 2, 3, 7 a 8 y 6 meses, total 14 (diap. 28).",r:"Sumadas son 18 a 19 meses. No figuran autorización, licencia, ensayos, protección contra fuego ni pruebas.",i:"El inicio del canon y las necesidades operativas dependen de una fecha que la presentación no sustenta.",e:"Hitos con fechas, multas por retraso y plazo de recibo que incluya pruebas."},
+{t:"Costos",s:"media",h:"Ahorro anunciado",p:"“Ahorro directo de hasta USD 5 M” (diap. 29).",r:"La tabla da 10,5 a 11,0 M frente a 13 a 16 M: diferencia de 2,0 a 5,5 M, sin fuego ni mantenimiento.",i:"El ahorro puede ser menor o desaparecer al comparar presupuestos completos.",e:"Presupuesto completo y comparable de ambas alternativas."}
+];
+let fS="",fT="";
+const temas=[...new Set(ROWS.map(r=>r.t))];
+(function(){const box=$("fTema");box.innerHTML='<button type="button" aria-pressed="true" data-v="">Todos</button>'+temas.map(t=>'<button type="button" aria-pressed="false" data-v="'+t+'">'+t+'</button>').join("");})();
+function pills(box,set){box.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;box.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));set(b.dataset.v);drawRows();});}
+pills($("fSev"),v=>fS=v);pills($("fTema"),v=>fT=v);
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function drawRows(){
+  const list=ROWS.filter(r=>(!fS||r.s===fS)&&(!fT||r.t===fT));
+  $("rows").innerHTML=list.map(r=>'<article class="row '+r.s+'"><h3>'+esc(r.h)+' <span class="pill '+r.s+'">'+r.s+'</span><span class="tag">'+esc(r.t)+'</span></h3><div class="rg"><div><h5>Lo que dice la presentación</h5><p>'+esc(r.p)+'</p></div><div><h5>Lo que muestran los planos y el análisis</h5><p>'+esc(r.r)+'</p></div><div><h5>Qué implica para Éxito</h5><p>'+esc(r.i)+'</p></div><div class="ask"><h5>Qué exigir</h5><p>'+esc(r.e)+'</p></div></div></article>').join("")||'<p class="small">Ningún punto con ese filtro.</p>';
+  $("rowsCount").textContent=list.length+" de "+ROWS.length+" puntos";
+}
+drawRows();
+
+/* ===== planta de la nave ===== */
+const BAYS=[22.4,25.6,25.6,25.6,25.6,25.6,25.6,22.4];
+const POS=[0];BAYS.forEach(b=>POS.push(+(POS[POS.length-1]+b).toFixed(1)));
+const removed=new Set();
+let hit=[];
+const AREA=198.4*98.8;
+function plan(){
+  const q=+$("pQ").value,d=+$("pH").value;
+  $("oQ").textContent=fmt(q,2);$("oH").textContent=fmt(d,2);
+  const c=$("planCv"),w0=c.clientWidth||320,s=(w0-40)/200,h=Math.round(100*s+70);
+  const {g,w}=fit(c,h);const x0=20,y0=26,W=198.4*s,H=98.8*s;
+  g.fillStyle=css("--panel2");g.fillRect(x0,y0,W,H);
+  g.strokeStyle=css("--line");g.lineWidth=1;g.setLineDash([]);
+  for(let m=0;m<=198;m+=3.2*10){g.beginPath();g.moveTo(x0+m*s,y0);g.lineTo(x0+m*s,y0+H);g.stroke();}
+  g.strokeStyle=css("--zinc");g.lineWidth=3;g.strokeRect(x0,y0,W,H);
+  const cy=y0+H/2;g.setLineDash([6,5]);g.strokeStyle=css("--mute");g.lineWidth=1;g.beginPath();g.moveTo(x0,cy);g.lineTo(x0+W,cy);g.stroke();g.setLineDash([]);
+  // zona afectada
+  const act=POS.map((p,i)=>i).filter(i=>!removed.has(i));
+  removed.forEach(i=>{
+    let a=0,b=POS.length-1;for(let k=i-1;k>=0;k--)if(!removed.has(k)){a=k;break;}
+    for(let k=i+1;k<POS.length;k++)if(!removed.has(k)){b=k;break;}
+    g.fillStyle=css("--bad");g.globalAlpha=.22;g.fillRect(x0+POS[a]*s,y0,(POS[b]-POS[a])*s,H);g.globalAlpha=1;
+  });
+  hit=[];
+  POS.forEach((p,i)=>{
+    const x=x0+p*s;const r=Math.max(6,Math.min(10,s*2.4));
+    hit.push({i,x,y:cy,r:r+6});
+    if(removed.has(i)){g.strokeStyle=css("--bad");g.lineWidth=2.5;g.beginPath();g.moveTo(x-r,cy-r);g.lineTo(x+r,cy+r);g.moveTo(x+r,cy-r);g.lineTo(x-r,cy+r);g.stroke();}
+    else{g.fillStyle=css("--cobre");g.beginPath();g.arc(x,cy,r,0,7);g.fill();g.strokeStyle=css("--bg");g.lineWidth=2;g.stroke();}
+  });
+  g.fillStyle=css("--mute");g.font="500 11px "+css("--m");g.textAlign="left";
+  g.fillText("198,4 m (Sección BB)",x0,y0-9);g.textAlign="right";g.fillText("98,8 m (Sección AA)",x0+W,y0+H+16);g.textAlign="left";
+  g.fillText("9 columnas del eje central",x0,y0+H+16);
+  // salidas
+  const n=act.length,tri=AREA/n,kN=tri*q;
+  const L=removed.size?96:48;
+  $("planOut").innerHTML=
+    '<div><b>'+n+' de 9</b><span>columnas del eje central en pie</span></div>'+
+    '<div><b>'+fmt(tri,0)+' m²</b><span>área de techo por columna (promedio)</span></div>'+
+    '<div><b>'+fmt(kN/1000,1)+' MN</b><span>≈ '+fmt(kN/9.81,0)+' t de carga vertical media por columna</span></div>'+
+    '<div><b>'+fmt(L/d,0)+'</b><span>L/d con luz '+L+' m y peralte '+fmt(d,2)+' m</span></div>';
+  const v=$("planV"),ld=L/d;
+  if(!removed.size){v.className="verdict "+(ld<=15?"ok":ld<=40?"warn":"bad");v.textContent="Con las 9 columnas, la luz es de unos 48 m y L/d = "+fmt(ld,0)+": zona de 15 a 40, que solo se justifica con muchos módulos y verificación por modelo.";}
+  else{v.className="verdict bad";v.textContent="Con "+removed.size+" columna"+(removed.size>1?"s":"")+" fuera, la luz transversal pasa a unos 96 m (L/d = "+fmt(ld,0)+") y cada columna restante recibe "+fmt(tri/(AREA/9),2).replace(",",",")+" veces la carga de diseño medio. Fuera de cualquier rango citado: necesita rediseño, no solo recálculo.";}
+}
+$("planCv").addEventListener("click",e=>{const r=$("planCv").getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const h=hit.find(k=>Math.hypot(k.x-x,k.y-y)<=k.r);if(!h)return;if(removed.has(h.i))removed.delete(h.i);else removed.add(h.i);plan();});
+$("pReset").addEventListener("click",()=>{removed.clear();plan()});
+["pQ","pH"].forEach(i=>$(i).addEventListener("input",plan));
+redraws.push(plan);
+
+/* ===== altura ===== */
+function alt(){
+  const H=+$("hLib").value,n=+$("hN").value;
+  $("oHL").textContent=fmt(H,1);$("oHN").textContent=n;
+  const util=H-1.0,por=util/n;
+  $("hOut").innerHTML='<div><b>'+fmt(util,1)+' m</b><span>altura utilizable para racks (supuesto: 1,0 m para rociadores y tuberías)</span></div><div><b>'+fmt(por,2)+' m</b><span>por nivel de paletización, incluida la viga</span></div>';
+}
+["hLib","hN"].forEach(i=>$(i).addEventListener("input",alt));alt();
+
+/* ===== 25 años ===== */
+const FULL=7200,PART=1800,CAMP=100,CORR=60;
+function mCosts(yFull){
+  const a=[0];let tot=0;
+  for(let y=1;y<=25;y++){
+    let c=CORR+(y<=15?CAMP:0);
+    if(yFull===25){if(y===15)c+=PART;if(y===25)c+=FULL;}
+    else{if(y===yFull)c+=FULL;if(y===25)c+=PART;}
+    a.push(c);tot+=c;
+  }
+  const cum=[0];a.slice(1).forEach((c,i)=>cum.push(cum[i]+c));
+  return{a,cum,tot};
+}
+function maint(){
+  const yF=+document.querySelector("#mScn [aria-pressed=true]").dataset.y;
+  const y=+$("mY").value;$("oY").textContent=y;
+  const {a,cum,tot}=mCosts(yF);
+  const c=$("mCv"),{g,w,h}=fit(c,260),L=46,R=14,T=14,B=32,pw=w-L-R,ph=h-T-B,max=tot*1.05;
+  const X=v=>L+pw*v/25,Y=v=>T+ph*(1-v/max);
+  g.strokeStyle=css("--line");g.fillStyle=css("--mute");g.font="400 10px "+css("--m");g.lineWidth=1;
+  for(let v=0;v<=tot;v+=3000){g.beginPath();g.moveTo(L,Y(v));g.lineTo(w-R,Y(v));g.stroke();g.textAlign="right";g.fillText(fmt(v/1000,0)+" mil",L-5,Y(v)+3);}
+  g.textAlign="center";[0,5,10,15,20,25].forEach(v=>g.fillText(v,X(v),h-14));g.fillText("año del contrato",L+pw/2,h-2);
+  const col=css("--warn");
+  g.strokeStyle=col;g.lineWidth=2.5;g.beginPath();cum.forEach((v,i)=>{i?g.lineTo(X(i),Y(v)):g.moveTo(X(i),Y(v))});g.stroke();
+  g.fillStyle=col;g.globalAlpha=.12;g.beginPath();g.moveTo(X(0),Y(0));for(let i=0;i<=y;i++)g.lineTo(X(i),Y(cum[i]));g.lineTo(X(y),Y(0));g.fill();g.globalAlpha=1;
+  const ev=[[yF,"repintado total"],[yF===25?15:25,"repintado 25 %"]];
+  ev.forEach(([yy,t])=>{g.fillStyle=css("--bad");g.beginPath();g.arc(X(yy),Y(cum[yy]),5,0,7);g.fill();});
+  g.strokeStyle=css("--fg");g.lineWidth=1.5;g.beginPath();g.moveTo(X(y),T);g.lineTo(X(y),T+ph);g.stroke();
+  g.fillStyle=css("--fg");g.beginPath();g.arc(X(y),Y(cum[y]),5,0,7);g.fill();
+  const pct=cum[y]/tot*100;
+  const e=a[y]>=1000?(y===yF?"repintado total":"repintado parcial"):y>=1&&y<=15?"campaña de inspección y correctivos":y>15?"solo correctivos":"entrega";
+  $("mOut").innerHTML='<div><b>'+fmt(cum[y],0)+'</b><span>millones COP acumulados al año '+y+'</span></div><div><b>USD '+fmt(cum[y]/TRM,2)+' M</b><span>a '+fmt(TRM,2)+' COP/USD</span></div><div><b>'+fmt(pct,0)+' %</b><span>del total de '+fmt(tot,0)+' millones</span></div><div><b>'+fmt(a[y],0)+'</b><span>millones en el año '+y+': '+e+'</span></div>';
+  const lastQ=1-cum[20]/tot;
+  const v=$("mV");v.className="verdict "+(yF===25?"warn":"bad");
+  v.textContent=yF===25?"El "+fmt(100*(FULL/tot),0)+" % del costo es el repintado del año 25. Quien reciba la bodega ese año hereda lo más caro; sin cláusula, el costo no tiene dueño.":"Con zinc C4 el repintado grande llega en el año 13: "+fmt(FULL/TRM,1)+" M USD durante el arriendo, no al final. Es recomendable medir el zinc en la recepción para saber cuál es el escenario.";
+}
+$("mScn").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;$("mScn").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));maint();});
+$("mY").addEventListener("input",maint);redraws.push(maint);
+
+/* ===== ahorro frente a fuego y mantenimiento ===== */
+const MANT_USD=12000/TRM;
+function fuego(){
+  const S=+$("fS").value,sh=+$("fShare").value/100,F=+document.querySelector("#fR [aria-pressed=true]").dataset.v;
+  $("oS").textContent=fmt(S,1);$("oSh").textContent=fmt(sh*100,0);
+  const Fn=F*(1-sh),Mn=MANT_USD*(1-sh),net=S-Fn-Mn,mx=Math.max(S,Fn,Mn,Math.abs(net))*1.08;
+  const row=(l,v,neg,acc)=>'<div class="fbar'+(neg?" neg":"")+'"><span>'+l+'</span><div class="tr"><i style="width:'+(Math.abs(v)/mx*100)+'%;'+(acc?"background:"+acc:"")+'"></i></div><b>'+(v<0?"−":"")+fmt(Math.abs(v),1)+'</b></div>';
+  $("fBars").innerHTML=row("Ahorro anunciado",S,false,"var(--ok)")+row("Fuego que falta",Fn,false,"var(--fuego)")+row("Mantenimiento 25 años",Mn,false,"var(--warn)")+row("Ahorro que queda",net,net<0);
+  const v=$("fV");
+  v.className="verdict "+(net<0?"bad":net<S*0.5?"warn":"ok");
+  v.textContent=net<0?"Con estos supuestos el ahorro anunciado se agota y la malla cuesta más que la alternativa durante el contrato: USD "+fmt(-net,1)+" M.":"Queda un ahorro de USD "+fmt(net,1)+" M, "+fmt(net/S*100,0)+" % del anunciado, antes de contar el costo de la cubierta, los canalones y el cerramiento.";
+}
+$("fR").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;$("fR").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));fuego();});
+["fS","fShare"].forEach(i=>$(i).addEventListener("input",fuego));fuego();
+
+/* ===== lluvia ===== */
+function lluvia(){
+  const I=+$("rI").value,C=+$("rC").value,A=+$("rA").value;
+  $("oRI").textContent=I;$("oRC").textContent=C;$("oRA").textContent=fmt(A,0);
+  const Q=I*A/3600,N=Math.ceil(Q/C),per=2*(100+A/100),sp=per/N,min=51/I*60,t51=51*A/1000;
+  $("rOut").innerHTML='<div><b>'+fmt(Q,0)+' L/s</b><span>caudal que cae sobre la nave</span></div><div><b>'+N+'</b><span>bajantes de 5” necesarias</span></div><div><b>'+fmt(sp,1)+' m</b><span>una cada tanto de perímetro ('+per+' m)</span></div><div><b>'+fmt(min,0)+' min</b><span>para llegar a 51 mm si no drena</span></div><div><b>'+fmt(t51,0)+' t</b><span>de agua a 51 mm sobre la nave</span></div>';
+  const v=$("rV");v.className="verdict "+(N>40?"bad":N>20?"warn":"ok");
+  v.textContent=N>40?"Hacen falta muchas bajantes; cada obstrucción pesa. Se recomienda exigir rebosaderos de emergencia y limpieza de canalones como obligación contractual.":N>20?"Una bajante cada "+fmt(sp,0)+" m: razonable solo si hay rebosaderos y se limpian los canalones.":"Número manejable de bajantes; debe verificarse igual el rebosadero y la pendiente de los 50 m hacia cada borde.";
+}
+["rI","rC","rA"].forEach(i=>$(i).addEventListener("input",lluvia));lluvia();
+
+/* ===== entrega ===== */
+function gantt(){
+  const dl=+$("gDel").value;$("oGD").textContent=dl;
+  const MAXM=30,P=v=>(v/MAXM*100).toFixed(2)+"%";
+  const bar=(lab,a,b,cls)=>'<div class="gr"><div class="lb">'+lab+'</div><div class="tk">'+(cls==="axis"?"":"")+'<i class="'+(cls||"")+'" style="left:'+P(a)+';width:'+P(Math.max(b-a,0.15))+'"></i></div></div>';
+  let h='';
+  h+=bar("Trámites: art. 13, licencia, revisión",0,dl,"miss");
+  h+=bar("1 Diseño e ingeniería (2 m)",dl+0,dl+2,"");
+  h+=bar("2 Acopio de materia prima (3 m)",dl+1,dl+4,"");
+  h+=bar("3 Fabricación y transporte (7 a 8 m)",dl+3,dl+10.5,"");
+  h+=bar("4 Montaje en obra (6 m)",dl+8,dl+14,"");
+  h+=bar("Si fueran secuenciales (18 a 19 m)",dl,dl+18.5,"gh");
+  h+=bar("Ensayos de nudos por lotes",dl+3,dl+10.5,"miss");
+  h+=bar("Protección contra fuego",dl+8,dl+14,"miss");
+  h+=bar("Pruebas de agua y recepción",dl+14,dl+15,"miss");
+  let ax='<div class="gr"><div></div><div class="axis">';for(let m=0;m<=MAXM;m+=3)ax+='<span style="left:'+P(m)+'">'+m+'</span>';ax+='</div></div>';
+  $("gantt").innerHTML=h+ax;
+  const rec=dl+15;
+  $("gOut").innerHTML='<div><b>mes '+rec+'</b><span>recepción, contando trámites y pruebas (la presentación dice 14)</span></div><div><b>+'+(rec-14)+' m</b><span>frente a los 14 meses anunciados</span></div><div><b>mes '+(rec+300)+'</b><span>fin de un arriendo de 25 años que empiece en la recepción</span></div>';
+}
+$("gDel").addEventListener("input",gantt);gantt();
+
+/* ===== lista ===== */
+const CHK=[
+["Operaciones",["Plano de planta de columnas y de muelles como anexo del contrato.","Layout de racks aprobado sobre la retícula real, con altura útil bajo malla e instalaciones.","Regla: ninguna columna se retira ni se desplaza sin recálculo firmado.","Cargas máximas de colgado en nodos para rociadores, ductos, iluminación y paneles solares."]],
+["Jurídico",["Autorización del sistema no convencional (Ley 400, art. 13) como condición previa.","Licencia de construcción y revisión independiente del diseño estructural.","Hitos con fechas, multas por retraso y plazo de recibo que incluya pruebas.","Cláusulas de vida útil, devolución y reversión del activo a los 25 años.","Garantías y pólizas con plazo acorde al contrato."]],
+["Finanzas",["Presupuesto completo y comparable de la malla y de la alternativa convencional (fuego, mantenimiento, cubierta, canalones).","Reparto del costo de repintado y de mantenimiento de la estructura a lo largo de los 25 años.","Ajuste de precio por desviación del peso de acero (kg/m²)."]],
+["Riesgos y seguros",["Clasificación del riesgo de incendio y resistencia exigida firmadas por especialista.","Aceptación escrita de la aseguradora sobre protección pasiva y rociadores a 13 m.","Diseño hidráulico de la cubierta con rebosaderos y prueba de lluvia en recepción.","Plan de limpieza de canalones y bajantes en el contrato."]],
+["Técnico e interventoría",["Memoria de cálculo con una sola geometría (módulo y peralte) y R = 1,0.","Análisis no lineal con imperfecciones, pérdida de una columna y colapso progresivo.","Plan de muestreo y ensayos de nudos y tornillos por lote, con trazabilidad.","Medición de espesor de zinc por muestreo en la recepción.","Estudio geotécnico y cimentaciones coherentes con limos y arcillas saturadas."]]
+];
+(function(){
+  $("chk").innerHTML=CHK.map((g,gi)=>'<section><h4>'+g[0]+'</h4>'+g[1].map((t,ti)=>'<label><input type="checkbox" data-g="'+gi+'" data-t="'+ti+'"><span>'+esc(t)+'</span></label>').join("")+'</section>').join("");
+})();
+function count(){
+  const all=document.querySelectorAll("#chk input"),done=[...all].filter(x=>x.checked).length;
+  $("cnt").textContent=done+" de "+all.length+" resueltas";
+}
+$("chk").addEventListener("change",count);count();
+$("cpy").addEventListener("click",()=>{
+  const lines=["Condiciones pendientes para el contrato ancla a 25 años (bodega Medellín Sur, estructura espacial):",""];
+  CHK.forEach((g,gi)=>{const p=g[1].filter((t,ti)=>!document.querySelector('#chk input[data-g="'+gi+'"][data-t="'+ti+'"]').checked);if(p.length){lines.push(g[0].toUpperCase());p.forEach(t=>lines.push("- "+t));lines.push("");}});
+  const txt=lines.join("\n"),ta=$("cpyTxt");ta.value=txt;
+  const ok=()=>{$("cpyMsg").textContent="Copiado."};
+  const fb=()=>{ta.style.left="0";ta.style.width="1px";ta.focus();ta.select();let r=false;try{r=document.execCommand("copy")}catch(e){}ta.style.left="-9999px";$("cpyMsg").textContent=r?"Copiado.":"No se pudo copiar: seleccione el texto de abajo.";if(!r){ta.style.cssText="position:static;width:100%;height:160px;margin-top:12px;background:var(--panel2);color:var(--fg);border:1px solid var(--line)";ta.select();}};
+  try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(e){fb()}
+});
+
+/* ===== arranque ===== */
+plan();maint();
+let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{plan();maint()},120)});
+})();
+</script>
+
+</body></html>
