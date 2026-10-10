@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estructuras Espaciales - Éxito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Concepto: un dibujo nocturno de ingeniería. Cada capítulo toma el color de su elemento:
+   agua, fuego, zinc, cobre (nudo) y ceniza (Hartford). Lo único grande y atrevido es la tipografía condensada y el marco 3D. */
+:root{
+  --bg:#0a1520; --panel:#101f2d; --panel2:#152738; --line:#27415a; --fg:#e7eef4; --mute:#93a8b9;
+  --agua:#4cc3d9; --fuego:#ff7a3d; --zinc:#c3cfd8; --cobre:#e09a6b; --ceniza:#b8afa3; --ok:#6fd08c; --warn:#f0c14b; --bad:#ff6b5e;
+  --acc:var(--zinc); --on-acc:#0a1520;
+  --d:'Big Shoulders Display','Arial Narrow',Impact,sans-serif; --b:'Instrument Sans',system-ui,sans-serif; --m:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#edf1f4; --panel:#ffffff; --panel2:#f3f6f8; --line:#c5d1da; --fg:#0e1c28; --mute:#4d6172;
+  --agua:#0a7f94; --fuego:#c2410c; --zinc:#46596a; --cobre:#a4521f; --ceniza:#6a6258; --ok:#1b7a3a; --warn:#8a6100; --bad:#b3261e; --on-acc:#ffffff; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#edf1f4; --panel:#ffffff; --panel2:#f3f6f8; --line:#c5d1da; --fg:#0e1c28; --mute:#4d6172;
+  --agua:#0a7f94; --fuego:#c2410c; --zinc:#46596a; --cobre:#a4521f; --ceniza:#6a6258; --ok:#1b7a3a; --warn:#8a6100; --bad:#b3261e; --on-acc:#ffffff; color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--b);padding-inline:0;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:1140px;margin:0 auto;padding-inline:20px}
+img{max-width:100%;height:auto;display:block}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+
+/* barra */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:14px;align-items:center;justify-content:space-between;padding-block:9px}
+.bar nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.bar nav a{font:500 12px/1 var(--m);text-decoration:none;color:var(--mute);padding:8px 10px;border-radius:99px;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
+.bar nav a:hover{color:var(--fg);background:var(--panel)}
+.brand{font:800 18px/1 var(--d);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.tbtn{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:6px 12px;font:500 12px var(--m);cursor:pointer;white-space:nowrap}
+
+/* hero */
+.hero{position:relative;padding-block:28px 8px;border-bottom:1px solid var(--line);--acc:var(--zinc)}
+.hero h1{font:900 clamp(52px,11.5vw,150px)/.88 var(--d);text-transform:uppercase;margin:0;letter-spacing:-.01em;position:relative;z-index:2;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--agua)}
+.hero .sub{max-width:52ch;color:var(--mute);font-size:18px;position:relative;z-index:2;margin:14px 0 0}
+#heroCv{position:absolute;inset:0;width:100%;height:100%;z-index:1;touch-action:pan-y;cursor:grab}
+.heroBox{position:relative;min-height:520px;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:20px;pointer-events:none}
+.heroBox>*{pointer-events:none}
+.hint{font:500 12px var(--m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase;margin-top:14px;position:relative;z-index:2}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:26px}
+.nums div{background:var(--bg);padding:14px 16px}
+.nums b{display:block;font:800 40px/1 var(--d);letter-spacing:.01em}
+.nums span{font:400 12px/1.35 var(--m);color:var(--mute)}
+
+.banner{padding-block:34px 0;border-bottom:1px solid var(--line)}
+.banner .fig{margin-bottom:34px}
+.banner img{width:100%;border-radius:4px}
+/* capítulos */
+.cap{padding-block:72px 40px;border-bottom:1px solid var(--line)}
+.cap[data-el=agua]{--acc:var(--agua)} .cap[data-el=fuego]{--acc:var(--fuego)} .cap[data-el=zinc]{--acc:var(--zinc)}
+.cap[data-el=cobre]{--acc:var(--cobre)} .cap[data-el=ceniza]{--acc:var(--ceniza)} .cap[data-el=zinc2]{--acc:var(--zinc)}
+.kick{font:500 12px var(--m);letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.cap h2{font:900 clamp(52px,10vw,120px)/.9 var(--d);text-transform:uppercase;margin:6px 0 18px;text-wrap:balance}
+.cap h2 span{color:var(--acc)}
+.lead{font-size:19px;max-width:60ch;margin:0 0 28px}
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:34px;align-items:start}
+@media (max-width:860px){.cols{grid-template-columns:minmax(0,1fr)}}
+.prose p{margin:0 0 14px;max-width:62ch}
+.prose h3{font:700 22px/1.2 var(--d);letter-spacing:.04em;text-transform:uppercase;margin:24px 0 8px;color:var(--acc)}
+.small{font-size:13px;color:var(--mute)}
+.mono{font-family:var(--m)}
+.tag{display:inline-block;font:500 11px var(--m);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);border-radius:99px;color:var(--mute)}
+
+/* paneles interactivos */
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;min-width:0}
+.lab h4{margin:0 0 12px;font:500 12px var(--m);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:14px}
+.ctl label{display:block;font:500 12px var(--m);color:var(--mute);margin-bottom:4px}
+.ctl output{color:var(--fg)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=number],select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.out div{background:var(--panel2);border-radius:4px;padding:10px 12px;min-width:0}
+.out b{display:block;font:800 30px/1.05 var(--d);color:var(--acc);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.out span{font:400 11px/1.3 var(--m);color:var(--mute)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--panel2);border-radius:99px;padding:6px 12px;font:500 12px var(--m);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.verdict{margin-top:12px;padding:10px 12px;border-left:3px solid var(--acc);background:var(--panel2);font-size:14px}
+.verdict.bad{border-color:var(--bad)} .verdict.warn{border-color:var(--warn)} .verdict.ok{border-color:var(--ok)}
+canvas{display:block;width:100%;max-width:100%}
+.fig{margin:0;min-width:0}
+.fig img{border:1px solid var(--line);border-radius:4px;background:#000}
+.fig figcaption{font:400 12px/1.45 var(--m);color:var(--mute);margin-top:6px}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:22px}
+.callout{border:1px solid var(--line);border-left:4px solid var(--acc);background:var(--panel);padding:14px 16px;margin:18px 0;border-radius:4px}
+.callout b{color:var(--acc)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
+th{font:500 11px var(--m);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.scroll{overflow-x:auto}
+
+/* gauge */
+.gauge{position:relative;height:46px;margin:30px 0 4px;background:linear-gradient(90deg,var(--line) 0 var(--g0),var(--ok) var(--g0) var(--g1),var(--warn) var(--g1) var(--g2),var(--bad) var(--g2) 100%);border-radius:3px}
+.gauge i{position:absolute;top:-6px;bottom:-6px;width:4px;background:var(--fg);border-radius:2px;transition:left .2s}
+.gauge u{position:absolute;top:-22px;font:500 11px var(--m);text-decoration:none;transform:translateX(-50%);color:var(--fg);white-space:nowrap}
+.gticks{position:relative;height:16px;font:400 11px var(--m);color:var(--mute)}
+.gticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.glegend{display:flex;gap:14px;flex-wrap:wrap;font:400 11px var(--m);color:var(--mute);margin-top:6px}
+.glegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* línea de tiempo */
+.tl{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin:6px 0 12px}
+.tl button{border:0;background:var(--panel2);padding:10px 4px;cursor:pointer;text-align:center;font:500 11px/1.25 var(--m);border-top:4px solid var(--line);color:var(--mute)}
+.tl button[aria-pressed=true]{border-top-color:var(--acc);color:var(--fg);background:var(--panel)}
+@media (max-width:640px){.tl{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.bars{display:grid;gap:8px;margin-top:8px}
+.bar1{display:grid;grid-template-columns:110px 1fr 90px;gap:10px;align-items:center;font:400 12px var(--m)}
+.bar1 .tr{height:18px;background:var(--panel2);border-radius:2px;overflow:hidden}
+.bar1 .tr i{display:block;height:100%;background:var(--acc);transition:width .35s}
+@media (max-width:520px){.bar1{grid-template-columns:80px 1fr 70px}}
+
+/* hitos */
+.hitos{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-bottom:14px}
+.hitos button{border:1px solid var(--line);background:var(--panel);padding:12px 8px;cursor:pointer;text-align:left;border-radius:4px;min-width:0}
+.hitos button b{display:block;font:800 30px/1 var(--d);color:var(--mute)}
+.hitos button span{font:500 11px/1.25 var(--m);color:var(--mute);display:block;overflow-wrap:anywhere}
+.hitos button[aria-pressed=true]{background:var(--acc);border-color:var(--acc)}
+.hitos button[aria-pressed=true] b,.hitos button[aria-pressed=true] span{color:var(--on-acc)}
+@media (max-width:760px){.hitos{grid-template-columns:repeat(3,minmax(0,1fr))}}
+ul.clean{margin:0;padding-left:18px} ul.clean li{margin-bottom:6px}
+
+footer{padding-block:48px 70px}
+footer .row{display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+footer img.logo{width:150px;border-radius:4px}
+.pend{columns:2 300px;gap:30px}
+.pend li{break-inside:avoid;margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.gauge i,.bar1 .tr i{transition:none}}
+</style>
+</head><body>
+
+<header class="bar"><div class="wrap">
+  <span class="brand">Estructuras espaciales · Éxito</span>
+  <nav aria-label="Capítulos">
+    <a href="#geometria">Geometría</a><a href="#agua">Agua</a><a href="#sistema">Sistema</a><a href="#fuego">Fuego</a><a href="#zinc">Zinc</a><a href="#nudo">Nudo</a><a href="#hartford">Hartford</a><a href="#hitos">Hitos</a>
+  </nav>
+  <button class="tbtn" id="tt" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+</div></header>
+
+<main>
+<section class="hero"><div class="wrap">
+  <div class="heroBox">
+    <canvas id="heroCv" aria-label="Estructura espacial en 3D. Arrastre para girarla."></canvas>
+    <h1>Estructuras<br>espaciales<br><em>Éxito</em></h1>
+    <p class="sub">Bodega Éxito en Caldas: una cubierta de malla espacial galvanizada de 50.000 m² sobre 2.523 mm de lluvia al año, para un contrato ancla de 25 años. Informe general del sistema: geometría, agua, fuego, zinc y nudo, con las verificaciones previas a la recepción de la obra.</p>
+    <div class="hint">Arrastre la malla para girarla · proporciones reales del módulo: 3,20 × 3,20 m y 1,54 m de peralte</div>
+  </div>
+  <div class="nums" role="list">
+    <div role="listitem"><b>50.000 m²</b><span>cubierta de malla espacial MERO, bodega en Caldas, Antioquia</span></div>
+    <div role="listitem"><b>31 a 65</b><span>relación luz/peralte: 31 con luces de 48 m (planos), 65 si la luz fuera de 100 m. Lo usual: 7 a 15</span></div>
+    <div role="listitem"><b>51 mm</b><span>de agua empozada igualan la carga viva de cubierta (0,50 kN/m²)</span></div>
+    <div role="listitem"><b>R = 1,0</b><span>diseño elástico: las columnas resisten el sismo</span></div>
+    <div role="listitem"><b>22</b><span>ensayos sin falla para 90 % de confiabilidad en 1.000 nudos (95 % de confianza: 29)</span></div>
+  </div>
+</div></section>
+
+<section class="banner"><div class="wrap"><figure class="fig"><img src="img/bodega_exito.jpg" alt="Imagen ilustrativa de la bodega Éxito vista desde el aire, con la cubierta de malla espacial y las fachadas con muelles de carga" width="1735" height="691"><figcaption>La bodega Éxito en Caldas. Imagen ilustrativa: en la nave de la izquierda se ve la malla espacial sin el cerramiento.</figcaption></figure></div></section>
+
+<!-- GEOMETRÍA -->
+<section class="cap" id="geometria" data-el="zinc2"><div class="wrap">
+  <div class="kick">Capítulo 1 · Geometría</div>
+  <h2>El peralte<br><span>decide</span></h2>
+  <p class="lead">La ventaja del sistema es su regularidad: barras iguales, nudos repetidos, prefabricación. Esa ventaja se conserva solo si el módulo y el peralte se eligen para la luz.</p>
+  <div class="cols">
+    <div class="prose">
+      <p>El proyecto describe un módulo de 3,20 × 3,20 m con 1,54 m de peralte (1,80 m en otra lámina). La Sección AA muestra dos luces de 48 m con una línea de columnas al centro: 48 ÷ 1,54 = 31. Los 65 solo aparecen con una luz libre de 100 m (como dice la presentación comercial) o si falla la columna central (luz de unos 96 m: 62). La guía de Virginia Tech para mallas de doble capa trabaja con 7 a 15 (apoyo en bordes) y hasta 20 a 40 con muchos módulos.</p>
+      <p>Con el peralte típico, d = 0,707 a, las diagonales quedan a 45° y todas las barras miden lo mismo: 2,26 m para a = 3,20 m. El proyecto tiene 1,54 m, un 32 % menos, y la diagonal a unos 34°.</p>
+      <div class="callout"><b>Por qué importa.</b> Para un mismo momento, la fuerza en los cordones crece como 1/d y la flecha como 1/d². Con 1,54 m en vez de 2,5 a 5 m, los cordones reciben entre 1,6 y 3,2 veces más fuerza, y la flecha entre 2,6 y 10 veces. Más flecha es más empozamiento.</div>
+      <figure class="fig"><img src="img/seccion_AA.jpg" alt="Sección AA de la bodega: 98,80 m de ancho, dos luces de 48 m con una línea de columnas central y 13 m de altura libre" loading="eager"><figcaption>Sección AA del proyecto: 98,80 m de ancho, dos luces de unos 48 m con columnas al centro y 13 m de altura libre.</figcaption></figure>
+      <h3>Cómo leer la relación luz/peralte</h3>
+      <p>Se divide la <b>luz L</b> (la distancia que la cubierta salva entre apoyos) por el <b>peralte d</b> (la altura entre el plano superior y el inferior de la malla). Es lo mismo que el espesor de una viga: cuanto más alto es el peralte frente a la luz, más rígida y eficiente es la malla; cuanto más delgada, más se flecha y más fuerza reciben las barras.</p>
+      <p>Ejemplo de los planos: 48 m ÷ 1,54 m = 31 (zona amarilla). Con 100 m sería 65 (zona roja). Cada color de la barra es un rango de la guía de Virginia Tech:</p>
+      <ul class="clean">
+        <li><b style="color:var(--ok)">Verde, de 7 a 15.</b> Rango usual para mallas apoyadas en los bordes.</li>
+        <li><b style="color:var(--warn)">Amarillo, de 15 a 40.</b> Solo con muchos módulos y verificación por modelo (se citan 20 a 40).</li>
+        <li><b style="color:var(--bad)">Rojo, más de 40.</b> Fuera de cualquier rango citado. Aquí caería una luz de 100 m, o la luz de 96 m si falla la columna central.</li>
+      </ul>
+      <p class="small">Los rangos son criterios de predimensionamiento, no normas. Las verificaciones salen del modelo del diseñador.</p>
+    </div>
+    <div class="lab">
+      <h4>Otro módulo, otra luz</h4>
+      <canvas id="geoCv" height="300" aria-label="Módulo de malla espacial en 3D"></canvas>
+      <div class="ctl">
+        <div><label for="gA">Módulo a: <output id="oA"></output> m</label><input id="gA" type="range" min="2" max="6" step="0.05" value="3.2"></div>
+        <div><label for="gD">Peralte d: <output id="oD"></output> m</label><input id="gD" type="range" min="0.8" max="6" step="0.02" value="1.54"></div>
+        <div><label for="gL">Luz L: <output id="oL"></output> m</label><input id="gL" type="range" min="20" max="150" step="1" value="48"></div>
+        <div class="seg" id="gPre" role="group" aria-label="Casos de luz y peralte"><button type="button" aria-pressed="true" data-l="48" data-d="1.54">48 m · 1,54 m</button><button type="button" aria-pressed="false" data-l="48" data-d="1.8">48 m · 1,80 m</button><button type="button" aria-pressed="false" data-l="96" data-d="1.54">96 m · falla la columna central</button><button type="button" aria-pressed="false" data-l="100" data-d="1.54">100 m · luz libre comercial</button></div>
+      </div>
+      <div class="gauge" id="gauge"><i id="gneedle"></i><u id="gtxt"></u></div>
+      <div class="gticks" id="gticks"></div>
+      <div class="glegend"><span><i style="background:var(--ok)"></i>usual 7–15</span><span><i style="background:var(--warn)"></i>muchos módulos 15–40</span><span><i style="background:var(--bad)"></i>fuera de rango &gt; 40</span></div>
+      <h4 style="margin-top:18px">Vista lateral: el peralte que tiene y el que necesitaría</h4>
+      <canvas id="sideCv" height="150" aria-label="Corte lateral de la malla con el peralte del proyecto y la banda de peralte necesario"></canvas>
+      <p class="small" style="margin:4px 0 0">Corte a escala horizontal real; el peralte está exagerado 4 veces. La banda es el peralte para que L/d esté entre 20 y 40.</p>
+      <div class="out">
+        <div><b id="rLd">65</b><span>relación luz/peralte</span></div>
+        <div><b id="rAng">34°</b><span>inclinación de la diagonal</span></div>
+        <div><b id="rDiag">2,74 m</b><span>longitud de la diagonal</span></div>
+        <div><b id="rNeed">2,5–5 m</b><span>peralte para L/d de 20 a 40</span></div>
+      </div>
+      <div class="verdict" id="gverd"></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- AGUA -->
+<section class="cap" id="agua" data-el="agua"><div class="wrap">
+  <div class="kick">Capítulo 2 · Agua</div>
+  <h2>Llueve en el<br><span>62 %</span> de los días</h2>
+  <p class="lead">Una cubierta plana en Caldas no es defendible: la flecha de la malla, el drenaje obstruido y un aguacero intenso producen empozamiento, y la malla es liviana.</p>
+  <div class="cols">
+    <div class="prose">
+      <canvas id="rainCv" height="170" aria-hidden="true" style="border-radius:4px;background:var(--panel)"></canvas>
+      <h3>Los datos del lugar</h3>
+      <p>Cerca de 2.523 mm de lluvia al año y 226 días con lluvia. Mayo es el mes más lluvioso (unos 355 mm) y enero el menos (unos 125 mm). Humedad relativa cercana al 82 %. Son datos secundarios: hay que contrastarlos con una estación del IDEAM.</p>
+      <h3>Un precedente en Medellín</h3>
+      <p>Según la experiencia de ICC, en la década de 1990 colapsó la cubierta de un centro de exposiciones de unos 90 m de luz, plana, por empozamiento y falta de mantenimiento. En el Pabellón Azul del mismo centro hubo que construir encima una estructura que diera pendiente, y esa carga obligó después a reforzar la estructura original. Dato aportado, por verificar en fuentes públicas.</p>
+      <figure class="fig"><img src="img/lluvia_caldas.png" alt="Captura con los datos de lluvia de Caldas: 2.523 mm al año, 226 días, mayo 355 mm, enero 125 mm"><figcaption>Datos de lluvia de Caldas (fuente secundaria, por contrastar con el IDEAM).</figcaption></figure>
+    </div>
+    <div class="lab">
+      <h4>Cuánto pesa el agua que se queda</h4>
+      <canvas id="pondCv" height="240" aria-label="Cubierta con agua empozada"></canvas>
+      <div class="ctl"><div><label for="wMM">Lámina de agua empozada: <output id="oW"></output> mm</label><input id="wMM" type="range" min="0" max="300" step="1" value="51"></div></div>
+      <div class="out">
+        <div><b id="wKn">0,50</b><span>kN/m² (1 mm de agua = 1 kgf/m²)</span></div>
+        <div><b id="wX">1,0×</b><span>de la carga viva mínima de cubierta, 0,50 kN/m² (NSR-10, Tabla B.4.2.1-2)</span></div>
+        <div><b id="wT">2.550 t</b><span>de agua sobre los 50.000 m²</span></div>
+      </div>
+      <div class="verdict" id="wVerd"></div>
+      <p class="small">En las combinaciones de la NSR-10 el empozamiento se mayora igual que la carga viva de cubierta: 1,2 D + 1,6 (Lr ó G ó Le). Con una estructura liviana, el agua puede gobernar el diseño de barras y nudos.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- SISTEMA -->
+<section class="cap" id="sistema" data-el="cobre"><div class="wrap">
+  <div class="kick">Capítulo 3 · Sistema y norma</div>
+  <h2>Pocas columnas,<br><span>R = 1,0</span></h2>
+  <div class="cols">
+    <div class="prose">
+      <p>La malla es articulada y redundante ante cargas verticales, pero el viento y el sismo los resisten las columnas. Si hay pocas columnas y son del mismo sistema, redundancia e hiperestaticidad dejan de aplicar: una columna que falla compromete todo.</p>
+      <p>La NSR-10 asigna a estos sistemas R = 2,5, es decir, divide la fuerza del sismo por 2,5. Con esta obra y esta densidad de columnas, se recomienda diseñar elástico con R = 1,0.</p>
+      <h3>Por qué la densidad de columnas pesa tanto</h3>
+      <p>Los planos de la presentación (Sección BB, 198,40 m) muestran unas 10 columnas internas por nave de unos 20.000 m²: del orden de 2.000 m² por columna, con separaciones de 22,4 a 25,6 m, más cuatro pares de pórticos arriostrados y dos columnas sueltas en los ejes de 54,4 y 140,8 m. Cada columna recibe el sismo y el viento de una gran área tributaria, y si una falla la luz pasa de 48 a unos 96 m sobre el hueco (L/d ≈ 62). La redundancia de la malla ante cargas verticales no se traslada a la carga lateral.</p>
+      <p>El coeficiente R = 2,5 supone que el sistema se deforma y disipa energía sin colapsar. Con columnas escasas, una sola que falle compromete la cubierta, así que no se puede contar con esa reserva.</p>
+      <figure class="fig"><img src="img/seccion_BB.jpg" alt="Sección BB de la bodega: 198,40 m con columnas internas separadas 22,4 a 25,6 m y pórticos arriostrados" loading="eager"><figcaption>Sección BB del proyecto: 198,40 m de largo, columnas internas cada 22 a 26 m y pórticos arriostrados en cuatro ejes.</figcaption></figure>
+      <h3>Sistema no convencional</h3>
+      <p>El nudo gobierna la resistencia y la NSR-10 no lo contempla. La vía propuesta es el artículo 13 de la Ley 400, con autorización de la Comisión Asesora Permanente. Construir sin ella expone a una multa de unos 250 salarios mínimos al mes para 50.000 m² (art. 51).</p>
+    </div>
+    <div class="lab">
+      <h4>Qué cambia el coeficiente de reducción</h4>
+      <div class="seg" role="group" aria-label="Coeficiente R"><button type="button" aria-pressed="false" data-r="2.5">R = 2,5 (norma para el sistema)</button><button type="button" aria-pressed="true" data-r="1">R = 1,0 (recomendado)</button></div>
+      <div class="bars" style="margin-top:16px">
+        <div class="bar1"><span>Fuerza sísmica</span><div class="tr"><i id="rBar"></i></div><b id="rTxt" class="mono"></b></div>
+      </div>
+      <div class="verdict" id="rVerd"></div>
+      <div class="out">
+        <div><b>0,20 / 0,20</b><span>Aa y Av de Caldas, amenaza intermedia (NSR-10, Apéndice A-4)</span></div>
+        <div><b>≈ 1.750 m</b><span>altitud sobre el nivel del mar, por verificar con topografía</span></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FUEGO -->
+<section class="cap" id="fuego" data-el="fuego"><div class="wrap">
+  <div class="kick">Capítulo 4 · Fuego</div>
+  <h2>El zinc no<br>aísla del <span>fuego</span></h2>
+  <p class="lead">El baño galvanizado protege contra la corrosión, no aísla el acero del calor. Que la malla venga galvanizada no elimina la exigencia del Título J de la NSR-10.</p>
+  <div class="cols">
+    <div class="prose">
+      <h3>Por qué decide el proyecto</h3>
+      <p>En la NSR-10 una bodega es ocupación A (almacenamiento). El área máxima por edificio fija el tipo de construcción (Tabla J.3.1-1) y de ese tipo salen los minutos de resistencia al fuego (J.3.3-1). Con rociadores, un solo edificio de 50.000 m² supera el tipo moderado (40.000 m² de área total) y cae en el tipo alto.</p>
+      <div class="lab" style="margin:14px 0">
+        <h4>¿En cuántos edificios se divide?</h4>
+        <div class="seg" role="group" aria-label="Número de edificios" id="bSeg"><button type="button" aria-pressed="true" data-n="1">1</button><button type="button" aria-pressed="false" data-n="4">4</button><button type="button" aria-pressed="false" data-n="7">7</button><button type="button" aria-pressed="false" data-n="14">14</button></div>
+        <div class="out"><div><b id="bArea">50.000 m²</b><span>por edificio</span></div><div><b id="bTipo">Alto</b><span>tipo de construcción</span></div><div><b id="bCol">180 min</b><span>columnas y cerchas</span></div><div><b id="bRoof">90 min</b><span>cubiertas</span></div></div>
+        <p class="small" style="margin:10px 0 0">Límites con rociadores por edificio: moderado 13.300 m² (40.000 m² totales), bajo 7.200 (21.700), básico 3.600 (14.600). Separar edificios es una lectura técnica que debe confirmar un consultor de protección contra incendios y la curaduría. Falta definir si la malla se trata como cercha o como cubierta: cambia la exigencia.</p>
+      </div>
+      <h3>Los pernos expuestos</h3>
+      <p>Entre la barra y el nudo quedan pernos a la vista. En corrosión, la rosca expuesta es la zona crítica, y los A490 no se galvanizan en caliente. En fuego no se encontró una fuente que describa cómo protegerlos con intumescente: hace falta un ensayo del nudo completo (ISO 834 o ASTM E119) o un estudio por desempeño.</p>
+      <p>Si se usa intumescente sobre galvanizado, requiere un imprimante de enlace aprobado por el fabricante, preparación según ASTM D6386 y ensayos de adherencia (ASTM D4541 y D3359).</p>
+    </div>
+    <div class="lab">
+      <h4>Calculadora de intumescente · modelo indicativo</h4>
+      <canvas id="fireCv" height="300" aria-label="Curvas de temperatura contra tiempo"></canvas>
+      <ul class="clean small" style="margin:8px 0 0;list-style:none;padding:0;display:grid;gap:4px">
+        <li><b style="color:var(--mute)">Gas ISO 834 (gris).</b> Temperatura del aire caliente en el incendio estándar de ensayo: sube rápido y pasa de 900 °C hacia los 60 minutos.</li>
+        <li><b style="color:var(--bad)">Acero sin proteger (rojo).</b> Temperatura del tubo desnudo: alcanza al gas en pocos minutos porque el tubo delgado se calienta casi al instante.</li>
+        <li><b style="color:var(--agua)">Con pintura (azul verdoso).</b> Temperatura del acero con el espesor de intumescente indicado: la pintura se expande, aísla y retrasa el calentamiento.</li>
+        <li><b style="color:var(--fuego)">Temperatura crítica (naranja, discontinua).</b> Temperatura a la que el acero pierde tanta resistencia que ya no soporta su carga. Depende del grado de utilización.</li>
+        <li><b>Zinc se funde ≈ 420 °C (gris, discontinua).</b> Hacia esa temperatura el galvanizado se derrite: la capa de zinc no protege del fuego.</li>
+        <li><b>Línea punteada vertical.</b> El tiempo de resistencia pedido (por ejemplo, 60 min). La pintura está bien dimensionada si la curva azul llega a ella justo por debajo de la temperatura crítica.</li>
+      </ul>
+      <div class="ctl">
+        <div><label for="fT">Resistencia al fuego (min)</label><input id="fT" type="number" min="1" step="any" value="60"></div>
+        <div><label for="fTube">Tubo (espesor asumido)</label><select id="fTube"><option value="0">Ø60 × 2,5 mm</option><option value="1">Ø73 × 2,5 mm</option><option value="2" selected>Ø90 × 3,0 mm</option><option value="3">Ø114 × 3,0 mm</option><option value="free">Factor de forma libre…</option></select></div>
+        <div><label for="fAV">Factor de forma A/V (m⁻¹)</label><input id="fAV" type="number" min="0.1" step="any" value="345"></div>
+        <div><label for="fMu">Utilización μ: <output id="oMu"></output></label><input id="fMu" type="range" min="0.2" max="0.9" step="0.01" value="0.5"></div>
+      </div>
+      <div class="seg" role="group" aria-label="Base de costos" id="cSeg"><button type="button" aria-pressed="true" data-c="cype">Costos CYPE Colombia</button><button type="button" aria-pressed="false" data-c="us">Costos EE. UU. (TRM 3.273,49)</button></div>
+      <div class="out">
+        <div><b id="fTh">585 °C</b><span>temperatura crítica del acero</span></div>
+        <div><b id="fDft">2.947 µm</b><span>espesor seco indicativo (DFT)</span></div>
+        <div><b id="fCop">$ 393.000</b><span>COP por m² de superficie</span></div>
+        <div><b id="fM">$ 111.000</b><span>COP por metro de tubo</span></div>
+        <div><b id="fTot">13.000 MM</b><span>116.000 m de tubo, 4 diámetros a igual longitud (MM = millones de COP)</span></div>
+        <div><b id="fZn">5 min</b><span id="fZs">en que el acero sin proteger llega a 420 °C, donde se funde el zinc</span></div>
+      </div>
+      <div id="fVerd" class="verdict"></div>
+      <p class="small">Modelo térmico simplificado (EN 1993-1-2, curva ISO 834), calibrado con la ficha R60 de CYPE (1003 µm a 85 m⁻¹). No reemplaza la tabla certificada del fabricante, que sale de ensayos (EN 13381-8, ASTM E119). Espesores de pared de los tubos asumidos. Precios de referencia, no cotizaciones.</p>
+    </div>
+  </div>
+  <div class="figs">
+    <figure class="fig"><img src="img/cype_r60.png" alt="Ficha de CYPE Colombia para pintura intumescente R60: 136.022 COP/m², 1003 micras, factor de forma 85"><figcaption>CYPE Colombia, R60, factor de forma 85 m⁻¹: $ 136.022 por m². Es la calibración del modelo.</figcaption></figure>
+    <figure class="fig"><img src="img/cype_r90.png" alt="Ficha de CYPE Colombia para pintura intumescente R90: 297.314 COP/m², 2223 micras"><figcaption>CYPE Colombia, R90: $ 297.314 por m², espesor de 2223 micras. El factor de forma no se ve en la captura.</figcaption></figure>
+  </div>
+  <div class="callout"><b>Cómo leer la cifra.</b> Con un tubo delgado, el factor de forma es de 340 a 420 m⁻¹, entre cuatro y cinco veces el de la ficha de CYPE. El espesor crece en proporción al factor de forma, y por encima de unos 5.000 µm una película delgada acuosa difícilmente se aplica: probablemente se requiere epóxico grueso o diseño por desempeño. La referencia de EE. UU. (contratistas, USD 10 a 30 por pie cuadrado instalado) da un orden de magnitud parecido.</div>
+</div></section>
+
+<!-- ZINC Y MANTENIMIENTO -->
+<section class="cap" id="zinc" data-el="zinc"><div class="wrap">
+  <div class="kick">Capítulo 5 · Zinc y mantenimiento</div>
+  <h2>El zinc es el<br><span>reloj</span></h2>
+  <p class="lead">Mientras el zinc protege, la malla solo necesita inspección y retoques. Cuando se agota, empieza la corrosión del acero. Por eso los hitos y los costos del mantenimiento se ordenan según cuánto zinc queda.</p>
+  <div class="cols">
+    <div class="prose">
+      <p>La vida del zinc es el espesor dividido por lo que pierde cada año (ISO 9223). Para Caldas se recomienda categoría C3 como general y C4 en zonas de mayor exposición (condensación, humedad alta, aleros y nudos). Es una estimación: hay que medirla con cupones de corrosión (ISO 9226) desde el primer año.</p>
+      <p>El espesor lo fija el de la pared del acero (ISO 1461): 85 µm de zinc medio mínimo para más de 6 mm; 70 µm para 3 a 6 mm; 55 µm para 1,5 a 3 mm; 45 µm para menos de 1,5 mm. Con tubo de 2,5 a 3 mm, la fila que aplica es la de 55 µm.</p>
+      <p>Una pintura dúplex (pintura sobre zinc) prolonga la vida combinada entre 1,5 y 2,3 veces la suma de las dos vidas por separado.</p>
+    </div>
+    <div class="lab">
+      <h4>Cuántos años rinde el zinc</h4>
+      <div class="ctl">
+        <div><label for="zT">Espesor de zinc: <output id="oZ"></output> µm</label><input id="zT" type="range" min="30" max="120" step="1" value="55"></div>
+        <div><label>Categoría de corrosividad</label><div class="seg" id="zSeg" role="group" aria-label="Categoría"><button type="button" aria-pressed="false" data-k="C3">C3 · 0,7–2,1 µm/año</button><button type="button" aria-pressed="true" data-k="C4">C4 · 2,1–4,2 µm/año</button></div></div>
+      </div>
+      <div class="bars">
+        <div class="bar1"><span>Vida del zinc</span><div class="tr"><i id="zBar" style="width:0"></i></div><b id="zYrs" class="mono"></b></div>
+      </div>
+      <div class="verdict" id="zVerd"></div>
+    </div>
+  </div>
+
+  <div class="lab" style="margin-top:26px">
+    <h4>Plan de mantenimiento por etapas de vida del zinc</h4>
+    <div class="tl" id="tl" role="group" aria-label="Etapas"></div>
+    <div id="tlTxt" class="verdict"></div>
+  </div>
+
+  <div class="cols" style="margin-top:26px">
+    <div class="prose">
+      <h3>Qué debe quedar escrito</h3>
+      <ul class="clean">
+        <li>Un manual de mantenimiento aprobado antes de recibir la obra, con responsable, frecuencia, criterio de aceptación y registro por acción.</li>
+        <li>La línea base de la estructura terminada: flechas, geometría, espesores de zinc y apriete. Sin ella no hay con qué comparar. En Hartford no se midió o se ignoró.</li>
+        <li>Inspección anual los años 1 a 5 y cada dos años después (15 campañas en 25 años, 27 en 50), más inspecciones por evento: sismo, lluvia extrema, incendio, cambio de carga.</li>
+        <li>Inspección específica de los pernos expuestos y de la holgura entre tornillo y esfera.</li>
+        <li>Cada abertura nueva del cerramiento perimetral exige análisis y refuerzo de toda la estructura, y el mantenimiento aumenta de forma considerable.</li>
+        <li>Los umbrales de intervención (espesor residual de zinc, pérdida de sección, flecha) los fijan el diseñador y el proveedor, no se improvisan en servicio.</li>
+      </ul>
+    </div>
+    <div class="lab">
+      <h4>Costos: orden de magnitud con supuestos</h4>
+      <div class="seg" id="mSeg" role="group" aria-label="Precios"><button type="button" aria-pressed="true" data-m="hoy">Precios de hoy</button><button type="button" aria-pressed="false" data-m="nom">Nominal, inflación 4 %</button></div>
+      <div class="bars" id="mBars"></div>
+      <div class="verdict warn">Estas cifras son aproximaciones: no son datos ni cotizaciones. Son aproximaciones de un modelo con precios unitarios supuestos (repintado dúplex 120.000 COP/m² sobre 60.000 m² de acero). La incertidumbre es de casi tres veces. No incluyen cubierta, drenajes, protección contra fuego ni el mantenimiento adicional del cerramiento.</div>
+      <p class="small">A: zinc más duradero (C3). B: escenario base C4 local. El repintado pesa cerca del 76 % del total a 50 años.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- NUDO -->
+<section class="cap" id="nudo" data-el="cobre"><div class="wrap">
+  <div class="kick">Capítulo 6 · El nudo</div>
+  <h2>Diez ensayos<br><span>no certifican</span> mil nudos</h2>
+  <p class="lead">La resistencia de la malla la gobiernan los nudos. Si el proveedor asegura que mil nudos cumplen habiendo ensayado diez, eso no es un dato de ingeniería.</p>
+  <div class="figs" style="margin-top:0;margin-bottom:26px">
+    <figure class="fig"><img src="img/nodo_conacero.png" alt="Lámina del proveedor: nodo esférico MERO con barras tubulares atornilladas"><figcaption>Lámina del proveedor (Conacero, capítulo 3): esfera de acero forjado G1045 que recibe 16 elementos atornillados, barras de tubo A500 Gr. C con extremos cónicos de acero forjado 1020 y tornillos A-325 / A-490.</figcaption></figure>
+    <div>
+      <figure class="fig"><img src="img/tubos_proveedor.png" alt="Ficha de tubos de acero A500 Gr. C, diámetros 60, 73, 90 y 114 mm" style="max-width:420px"><figcaption>Barras de la ficha: diámetros 60, 73, 90 y 114 mm, soldadura tipo MIG.</figcaption></figure>
+      <div class="callout"><b>El nudo de la lámina no coincide con el de los planos.</b> En una malla de doble capa de pirámides cuadradas desfasadas, un nudo típico recibe 4 cordones y 4 diagonales: 8 elementos. Un nudo de 16 no sale de esta geometría. Ninguna norma fija el máximo de agujeros: se demuestra con ensayos. La literatura ubica la falla frágil en la raíz de la rosca, el enrosque corto y el agujero del pasador.</div>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="prose">
+      <h3>La tornillería</h3>
+      <p>Los A325 se pueden galvanizar en caliente. Los A490 no: el hidrógeno los fragiliza (riesgo desde unos 33 HRC). El proveedor debe declarar clase, recubrimiento, espesor y ensayos de cada tornillo.</p>
+      <h3>Normas</h3>
+      <p>No hay norma estadounidense exclusiva de mallas espaciales: el nudo se califica por ensayos y se diseña con AISC 360. En Europa se usan EN 1993-1-8 y EN 1090; en China sí existen normas de producto para el nudo de esfera atornillada y su tornillo (JG/T 10, JG/T 203, JGJ 7).</p>
+      <h3>Tres niveles que se exigen por separado</h3>
+      <ul class="clean"><li>Calificación del tipo de nudo, por laboratorio independiente.</li><li>Control de cada lote de fabricación.</li><li>Inspección del 100 % de las piezas por atributos: rosca, dureza, recubrimiento.</li></ul>
+    </div>
+    <div class="lab">
+      <h4>Cuántos ensayos hacen falta</h4>
+      <p class="small" style="margin-top:0">Plan de cero fallas. Con la distribución hipergeométrica: ¿cuántos nudos se ensayan, sin ninguna falla, para afirmar que el lote cumple?</p>
+      <div class="ctl">
+        <div><label for="nN">Tamaño del lote (nudos)</label><input id="nN" type="number" min="10" step="1" value="1000"></div>
+        <div><label for="nR">Confiabilidad exigida: <output id="oR"></output> %</label><input id="nR" type="range" min="50" max="99.9" step="0.1" value="90"></div>
+        <div><label for="nC">Confianza: <output id="oC"></output> %</label><input id="nC" type="range" min="80" max="99.5" step="0.5" value="90"></div>
+      </div>
+      <div class="out">
+        <div><b id="nOut">22</b><span>ensayos sin falla</span></div>
+        <div><b id="nPct">2,2 %</b><span>del lote</span></div>
+        <div><b id="n10">65 %</b><span>confianza que dan solo 10 ensayos sin falla</span></div>
+      </div>
+      <canvas id="nCv" height="140" aria-label="Probabilidad de aceptar un lote defectuoso según el tamaño de la muestra"></canvas>
+      <div class="verdict" id="nVerd"></div>
+      <p class="small">Si hubiera 50 nudos defectuosos entre 1.000, una muestra de 10 pasaría el 60 % de las veces. El lote real no es de 1.000: son unos 9.800 nudos y 39.000 barras (estimación para un módulo de 3,20 m).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- HARTFORD -->
+<section class="cap" id="hartford" data-el="ceniza"><div class="wrap">
+  <div class="kick">Capítulo 7 · Lo que enseña Hartford</div>
+  <h2>El modelo ideal<br><span>no vio</span> el colapso</h2>
+  <p class="lead">18 de enero de 1978, 4:20 a. m. Se hundió la cubierta de malla espacial del Hartford Civic Center Coliseum, de unos 91 × 110 m. No había nadie: unas seis horas antes hubo un partido con unos 4.700 asistentes.</p>
+  <div class="cols">
+    <div class="prose">
+      <figure class="fig"><img src="img/hartford_aerea.png" alt="Vista aérea de la cubierta colapsada del Hartford Civic Center Coliseum" style="max-width:360px"><figcaption>Vista aérea de la cubierta colapsada. Fuente y crédito por confirmar.</figcaption></figure>
+      <h3>Qué supuso el modelo</h3>
+      <p>Nudos ideales y arriostramiento cada 4,57 m (15 ft), cuando en los cordones exteriores era de 9,14 m (30 ft). Peso propio de 18 psf frente a 23 psf reales. Las flechas durante el izaje fueron del doble de las previstas y se explicaron como una discrepancia esperable. Tres firmas investigaron y no coincidieron en el mecanismo. El arreglo fue de 25 millones de dólares.</p>
+      <p>Un análisis lineal compara cada barra con la capacidad de una tabla. El no lineal incluye la amplificación P–δ, la plastificación, las imperfecciones y la cascada de redistribución cuando una barra pandea.</p>
+    </div>
+    <div class="lab">
+      <h4>Capacidad de un cordón comprimido · ejemplo ilustrativo</h4>
+      <div class="seg" id="hSeg" role="group" aria-label="Longitud sin arriostrar"><button type="button" aria-pressed="false" data-l="0">4,57 m (modelo)</button><button type="button" aria-pressed="true" data-l="1">9,14 m (real)</button></div>
+      <div class="bars" id="hBars" style="margin-top:14px"></div>
+      <div class="out"><div><b id="hPct">29 %</b><span>capacidad real frente al modelo (176 kN contra 599 kN)</span></div><div><b id="hX">3,4×</b><span>demanda sobre capacidad, solo con esos dos errores</span></div></div>
+      <div class="verdict" id="hVerd"></div>
+      <p class="small">Tubo Ø168,3 × 6,3 mm, fluencia de 250 MPa, fórmula de la secante. No es el elemento de Hartford (allí eran ángulos en cruz, aún más desfavorables): solo muestra el orden de magnitud.</p>
+    </div>
+  </div>
+  <div class="callout"><b>Para Caldas.</b> Hartford tenía una relación luz/peralte de unos 13 y aun así falló. El módulo propuesto en Caldas da cerca de 65. Piden: modelar la excentricidad real de los nudos, usar las longitudes no arriostradas construidas, pesar la cubierta, fijar un criterio de parada si la flecha medida supera 1,25 veces la prevista, análisis no lineal con colapso progresivo, y revisión independiente.</div>
+</div></section>
+
+<!-- HITOS -->
+<section class="cap" id="hitos" data-el="agua"><div class="wrap">
+  <div class="kick">Capítulo 8 · Interventoría</div>
+  <h2>Seis <span>hitos</span></h2>
+  <p class="lead">El interventor presenta evidencia y el cliente decide si se avanza. Un hallazgo sin responsable ni plazo no cuenta como gestionado.</p>
+  <div class="hitos" id="hBt" role="group" aria-label="Hitos"></div>
+  <div class="lab"><h4 id="hT"></h4><ul class="clean" id="hL"></ul></div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="row">
+    <img class="logo" src="img/suelo_firme.png" alt="Suelo Firme Interventoría">
+    <div style="min-width:0;flex:1 1 260px">
+      <div class="kick" style="color:var(--mute)">Preparado por</div>
+      <p style="margin:4px 0 0"><b>Andrés Montoya</b>, ingeniero estructural, ICC SAS · con <b>Luis Navarro</b>, gerente de Suelo Firme Interventoría. Octubre de 2026. Borrador para revisión.</p>
+    </div>
+  </div>
+  <h3 style="font:700 22px var(--d);letter-spacing:.04em;text-transform:uppercase;margin:34px 0 8px">Qué falta para cerrar</h3>
+  <ul class="clean pend">
+    <li>Curvas de intensidad–duración–frecuencia de una estación del IDEAM cercana, y datos del predio (viento, suelo).</li>
+    <li>Pendiente, luces y altura libre reales de la cubierta propuesta.</li>
+    <li>Cotizaciones colombianas de repintado, inspección, galvanizado e intumescente.</li>
+    <li>Espesores de pared reales de los tubos y despiece de nudos y barras.</li>
+    <li>Confirmar el tipo de nudo (16 elementos de la lámina frente a los planos).</li>
+    <li>Concepto firmado de un consultor de protección contra incendios y posición de la curaduría.</li>
+    <li>Interpretación de la Ley 400 por un abogado.</li>
+  </ul>
+  <p class="small" style="margin-top:22px">Las ilustraciones animadas (malla, lluvia, curvas) están dibujadas en el propio código y no usan imágenes de terceros. Los cálculos y costos de esta página son aproximaciones de orden de magnitud, no memorias de cálculo.</p>
+</div></footer>
+
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(x,d=0)=>x.toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* tema */
+const root=document.documentElement;
+const saved=store.get("tema"); if(saved==="light"||saved==="dark") root.setAttribute("data-theme",saved);
+$("tt").addEventListener("click",()=>{
+  const dark = root.getAttribute("data-theme")? root.getAttribute("data-theme")==="dark" : !matchMedia("(prefers-color-scheme: light)").matches;
+  const nx=dark?"light":"dark"; root.setAttribute("data-theme",nx); store.set("tema",nx); redrawAll();
+});
+
+/* canvas util */
+function fit(cv,h){const dpr=Math.min(devicePixelRatio||1,2);const w=cv.clientWidth||300;const hh=h||cv.getAttribute("height")|0||200;cv.width=Math.round(w*dpr);cv.height=Math.round(hh*dpr);const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);return {g,w,h:hh};}
+
+/* ===== marco 3D ===== */
+function Frame(cv,opt){
+  this.cv=cv; this.opt=opt; this.yaw=opt.yaw??0.6; this.pitch=opt.pitch??0.55; this.drag=false; this.vis=true; this.last=0;
+  this.build(); this.size();
+  const self=this;
+  cv.addEventListener("pointerdown",e=>{self.drag=true;self.lx=e.clientX;self.ly=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener("pointermove",e=>{if(!self.drag)return;self.yaw+=(e.clientX-self.lx)*0.008;self.pitch=Math.max(-0.2,Math.min(1.45,self.pitch+(e.clientY-self.ly)*0.006));self.lx=e.clientX;self.ly=e.clientY;self.draw();});
+  const up=()=>{self.drag=false};cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+  if("IntersectionObserver" in window){new IntersectionObserver(es=>{self.vis=es[0].isIntersecting;if(self.vis)self.loop();},{rootMargin:"100px"}).observe(cv.parentElement||cv);}
+  new ResizeObserver(()=>{self.size();self.draw();}).observe(cv);
+  this.loop();
+}
+Frame.prototype.build=function(){
+  const {nx,ny,a,d}=this.opt, T=[],B=[],E=[];
+  const ox=(nx-1)*a/2, oz=(ny-1)*a/2;
+  for(let i=0;i<nx;i++)for(let j=0;j<ny;j++)T.push([i*a-ox,d/2,j*a-oz]);
+  for(let i=0;i<nx-1;i++)for(let j=0;j<ny-1;j++)B.push([(i+.5)*a-ox,-d/2,(j+.5)*a-oz]);
+  const ti=(i,j)=>i*ny+j, bi=(i,j)=>nx*ny+i*(ny-1)+j;
+  for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){ if(i<nx-1)E.push([ti(i,j),ti(i+1,j),0]); if(j<ny-1)E.push([ti(i,j),ti(i,j+1),0]); }
+  for(let i=0;i<nx-1;i++)for(let j=0;j<ny-1;j++){ if(i<nx-2)E.push([bi(i,j),bi(i+1,j),1]); if(j<ny-2)E.push([bi(i,j),bi(i,j+1),1]);
+    E.push([bi(i,j),ti(i,j),2],[bi(i,j),ti(i+1,j),2],[bi(i,j),ti(i,j+1),2],[bi(i,j),ti(i+1,j+1),2]); }
+  this.P=T.concat(B); this.E=E; this.extent=Math.max((nx-1)*a,(ny-1)*a)/2*1.45+d;
+};
+Frame.prototype.set=function(o){Object.assign(this.opt,o);this.build();this.draw();};
+Frame.prototype.size=function(){const f=fit(this.cv,this.opt.h);this.g=f.g;this.w=f.w;this.h=f.h;};
+Frame.prototype.draw=function(){
+  const g=this.g,w=this.w,h=this.h; g.clearRect(0,0,w,h);
+  const cy=Math.cos(this.yaw),sy=Math.sin(this.yaw),cp=Math.cos(this.pitch),sp=Math.sin(this.pitch);
+  const S=Math.min(w/2.1,h/1.35)/this.extent*(this.opt.zoom||1), f=this.extent*3.2;
+  const Q=this.P.map(p=>{let x=p[0]*cy-p[2]*sy, z=p[0]*sy+p[2]*cy, y=p[1]; let y2=y*cp-z*sp, z2=y*sp+z*cp; const k=f/(f+z2); return [w/2+(this.opt.cx||0)*w+x*S*k, h/2+(this.opt.cyo||0)*h-y2*S*k, z2, k];});
+  const cols=[css("--zinc"),css("--agua"),css("--line")];
+  const lw=Math.max(1,S*0.04);
+  const draw=(type,col,wd)=>{g.strokeStyle=col;g.lineWidth=wd;g.beginPath();for(const e of this.E){if(e[2]!==type)continue;const A=Q[e[0]],Bq=Q[e[1]];g.moveTo(A[0],A[1]);g.lineTo(Bq[0],Bq[1]);}g.stroke();};
+  g.lineCap="round";
+  g.globalAlpha=.55;draw(2,css("--mute"),Math.max(.8,lw*.6));
+  g.globalAlpha=.9;draw(1,css("--agua"),Math.max(1,lw*.9));
+  g.globalAlpha=1;draw(0,css("--zinc"),Math.max(1.1,lw));
+  const idx=Q.map((q,i)=>i).sort((i,j)=>Q[j][2]-Q[i][2]);
+  const r0=Math.max(1.6,S*0.12), hi=css("--fg"), body=css("--zinc");
+  for(const i of idx){const q=Q[i];const r=r0*q[3];const gr=g.createRadialGradient(q[0]-r*.35,q[1]-r*.35,r*.1,q[0],q[1],r);gr.addColorStop(0,hi);gr.addColorStop(1,body);g.fillStyle=gr;g.globalAlpha=.95;g.beginPath();g.arc(q[0],q[1],r,0,6.283);g.fill();}
+  g.globalAlpha=1;
+};
+Frame.prototype.loop=function(){
+  const self=this; if(reduce){this.draw();return;}
+  if(this.running)return; this.running=true;
+  const step=t=>{ if(!self.vis){self.running=false;return;} if(!self.drag)self.yaw+=0.0022*(self.opt.spin||1); self.draw(); requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+};
+
+const hero=new Frame($("heroCv"),{nx:15,ny:15,a:3.2,d:1.54,h:520,spin:1,zoom:1.15,cx:0.22,cyo:-0.02,yaw:0.5,pitch:0.62});
+const geo=new Frame($("geoCv"),{nx:7,ny:7,a:3.2,d:1.54,h:300,spin:1.4,yaw:0.7,pitch:0.5});
+
+/* ===== geometría ===== */
+function geoUpdate(){
+  const a=+$("gA").value,d=+$("gD").value,L=+$("gL").value;
+  $("oA").textContent=fmt(a,2);$("oD").textContent=fmt(d,2);$("oL").textContent=fmt(L,0);
+  const ld=L/d, hor=a*Math.SQRT1_2, ang=Math.atan(d/hor)*180/Math.PI, dg=Math.hypot(hor,d);
+  $("rLd").textContent=fmt(ld,0);$("rAng").textContent=fmt(ang,0)+"°";$("rDiag").textContent=fmt(dg,2)+" m";
+  $("rNeed").textContent=fmt(L/40,1)+"–"+fmt(L/20,1)+" m";
+  // gauge 5..70 (lineal)
+  const lo=0,hi=70, pos=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100));
+  $("gauge").style.setProperty("--g0",pos(7)+"%");$("gauge").style.setProperty("--g1",pos(15)+"%");$("gauge").style.setProperty("--g2",pos(40)+"%");
+  $("gticks").innerHTML=[0,7,15,40,70].map(v=>"<span style='left:"+pos(v)+"%'>"+v+(v===70?"+":"")+"</span>").join("");
+  const n=$("gneedle");n.style.left=`calc(${pos(ld)}% - 2px)`; const t=$("gtxt");t.textContent="L/d = "+fmt(ld,0);t.style.left=Math.min(92,Math.max(8,pos(ld)))+"%";
+  const v=$("gverd");
+  if(ld<=15){v.className="verdict ok";v.textContent="Dentro del rango usual (7 a 15). Diagonal a "+fmt(ang,0)+"°.";}
+  else if(ld<=40){v.className="verdict warn";v.textContent="Solo es razonable con muchos módulos (20 a 40). Verificar con el modelo.";}
+  else{v.className="verdict bad";v.textContent="Fuera de cualquier rango citado. Con este módulo, el peralte debería estar entre "+fmt(L/40,1)+" y "+fmt(L/20,1)+" m.";}
+  side(d,L); geo.set({a:a,d:d});
+}
+function side(d,L){
+  const {g,w,h}=fit($("sideCv"),150),pad=14,x0=pad,x1=w-pad,sx=(x1-x0)/L,ex=4,y0=h*0.38;
+  const dmin=L/40,dmax=L/20;
+  g.fillStyle=css("--ok");g.globalAlpha=.25;g.fillRect(x0,y0,x1-x0,dmax*sx*ex);g.globalAlpha=.55;g.fillRect(x0,y0,x1-x0,dmin*sx*ex);g.globalAlpha=1;
+  g.fillStyle=css("--mute");g.font="400 10px "+css("--m");g.fillText("peralte necesario: "+fmt(dmin,1)+" a "+fmt(dmax,1)+" m",x0+6,y0+Math.min(h-24,dmax*sx*ex)+13);
+  const dh=d*sx*ex;g.strokeStyle=css("--zinc");g.lineWidth=2.2;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y0);g.moveTo(x0,y0+dh);g.lineTo(x1,y0+dh);g.stroke();
+  g.lineWidth=1;g.beginPath();const n=Math.max(6,Math.round(L/ (3.2*2)));for(let i=0;i<n;i++){const xa=x0+(x1-x0)*i/n;g.moveTo(xa,y0);g.lineTo(xa+(x1-x0)/n/2,y0+dh);g.moveTo(xa+(x1-x0)/n/2,y0+dh);g.lineTo(xa+(x1-x0)/n,y0);}g.stroke();
+  g.fillStyle=css("--fg");g.fillText("peralte del proyecto d = "+fmt(d,2)+" m",x0+6,y0-6);
+  g.strokeStyle=css("--line");g.lineWidth=6;g.beginPath();g.moveTo(x0,y0-2);g.lineTo(x0,h-6);g.moveTo(x1,y0-2);g.lineTo(x1,h-6);g.stroke();
+  g.fillStyle=css("--mute");g.textAlign="center";g.fillText("luz L = "+fmt(L,0)+" m",(x0+x1)/2,y0-6);g.textAlign="left";
+}
+["gA","gD","gL"].forEach(i=>$(i).addEventListener("input",()=>{document.querySelectorAll("#gPre button").forEach(b=>b.setAttribute("aria-pressed","false"));geoUpdate();}));
+document.querySelectorAll("#gPre button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#gPre button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+  $("gL").value=b.dataset.l;$("gD").value=b.dataset.d;geoUpdate();}));
+
+/* ===== lluvia y empozamiento ===== */
+let drops=[],rainCv=$("rainCv"),rainG,rainW,rainH;
+function rainSize(){const f=fit(rainCv,170);rainG=f.g;rainW=f.w;rainH=f.h;drops=Array.from({length:90},()=>({x:Math.random()*rainW,y:Math.random()*rainH,v:3+Math.random()*4,l:8+Math.random()*10}));}
+function rainDraw(){
+  const g=rainG;g.clearRect(0,0,rainW,rainH);g.strokeStyle=css("--agua");g.lineWidth=1.2;g.globalAlpha=.8;g.beginPath();
+  for(const d of drops){g.moveTo(d.x,d.y);g.lineTo(d.x-d.l*.15,d.y+d.l);if(!reduce){d.y+=d.v;d.x-=d.v*.15;if(d.y>rainH){d.y=-12;d.x=Math.random()*rainW+20;}}}
+  g.stroke();g.globalAlpha=1;
+  // anillo de días con lluvia
+  const cx=rainW-64,cy=rainH/2,r=40;g.lineWidth=9;g.strokeStyle=css("--line");g.beginPath();g.arc(cx,cy,r,0,6.283);g.stroke();
+  g.strokeStyle=css("--agua");g.beginPath();g.arc(cx,cy,r,-1.5708,-1.5708+6.283*226/365);g.stroke();
+  g.fillStyle=css("--fg");g.font="800 26px "+css("--d");g.textAlign="center";g.fillText("226",cx,cy+4);g.font="500 10px "+css("--m");g.fillStyle=css("--mute");g.fillText("días de lluvia",cx,cy+18);
+  g.textAlign="left";g.font="800 44px "+css("--d");g.fillStyle=css("--fg");g.fillText("2.523 mm",16,rainH-44);g.font="500 11px "+css("--m");g.fillStyle=css("--mute");g.fillText("lluvia anual en Caldas, Antioquia",16,rainH-22);
+}
+let rainVis=true;
+if("IntersectionObserver" in window)new IntersectionObserver(e=>{rainVis=e[0].isIntersecting;},{rootMargin:"80px"}).observe(rainCv);
+function rainLoop(){if(rainVis)rainDraw();if(!reduce)requestAnimationFrame(rainLoop);}
+
+function pond(){
+  const mm=+$("wMM").value; $("oW").textContent=fmt(mm,0);
+  const kn=mm*0.00981; $("wKn").textContent=fmt(kn,2); $("wX").textContent=fmt(kn/0.5,1)+"×"; $("wT").textContent=fmt(mm*50,0)+" t";
+  const v=$("wVerd");
+  if(mm<25){v.className="verdict ok";v.textContent="Menos de la mitad de la carga viva mínima.";}
+  else if(mm<51){v.className="verdict warn";v.textContent="Ya es más de la mitad de la carga viva de diseño de la cubierta.";}
+  else{v.className="verdict bad";v.textContent="Iguala o supera toda la carga viva de cubierta. Un aguacero intenso deposita unos 50 mm en pocos minutos si el drenaje no da abasto.";}
+  const {g,w,h}=fit($("pondCv"),240);
+  const base=h*0.42, sag=Math.min(40,10+mm*0.12);
+  const col=css("--zinc"), aq=css("--agua");
+  // cordón superior con flecha
+  const yAt=x=>base+sag*Math.sin(Math.PI*(x-30)/(w-60));
+  g.lineWidth=3;g.strokeStyle=col;g.beginPath();for(let x=30;x<=w-30;x+=4){const y=yAt(x);x===30?g.moveTo(x,y):g.lineTo(x,y);}g.stroke();
+  // columnas
+  g.strokeStyle=css("--line");g.lineWidth=6;g.beginPath();g.moveTo(30,base);g.lineTo(30,h-14);g.moveTo(w-30,base);g.lineTo(w-30,h-14);g.stroke();
+  // agua: espesor visual
+  const dep=Math.min(90,mm*0.34);
+  g.fillStyle=aq;g.globalAlpha=.55;g.beginPath();g.moveTo(30,yAt(30));for(let x=30;x<=w-30;x+=4)g.lineTo(x,yAt(x)-dep*Math.sin(Math.PI*(x-30)/(w-60))*0.9);for(let x=w-30;x>=30;x-=4)g.lineTo(x,yAt(x));g.fill();g.globalAlpha=1;
+  g.fillStyle=css("--mute");g.font="500 11px "+css("--m");g.fillText("48 m de luz · flecha exagerada",34,h-24);
+  g.textAlign="right";g.fillStyle=aq;g.font="800 30px "+css("--d");g.fillText(fmt(mm,0)+" mm",w-34,34);g.textAlign="left";
+}
+$("wMM").addEventListener("input",pond);
+
+/* ===== sismo R ===== */
+function sism(r){
+  document.querySelectorAll("[data-r]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.r===r)));
+  const rel=1/r; $("rBar").style.width=(rel*100)+"%"; $("rTxt").textContent="× "+fmt(rel,2);
+  $("rVerd").className="verdict "+(r===1?"ok":"warn");
+  $("rVerd").textContent=r===1?"Se diseña para la fuerza completa, sin contar con ductilidad. Si una columna falla, no hay otra trayectoria de carga.":"La fuerza se divide por 2,5 gracias a una ductilidad que este sistema, con pocas columnas, no puede garantizar.";
+}
+document.querySelectorAll("[data-r]").forEach(b=>b.addEventListener("click",()=>sism(+b.dataset.r)));
+
+/* ===== fuego: modelo ===== */
+const RHO=7850;
+function ca(T){ if(T<600)return 425+0.773*T-1.69e-3*T*T+2.22e-6*T*T*T; if(T<735)return 666+13002/(738-Math.min(T,737.9)); if(T<900)return 545+17820/(Math.max(T,731.1)-731); return 650; }
+const tgas=t=>20+345*Math.log10(8*t+1);
+let TABR=null,TABS=null,NK=260,TMAX=240,KAPPA=null;
+function buildTable(){
+  TABR=new Float64Array(NK);for(let k=0;k<NK;k++)TABR[k]=Math.pow(10,k*(5.5/(NK-1)));
+  const Ts=new Float64Array(NK).fill(20);TABS=new Float64Array((TMAX+1)*NK);TABS.set(Ts,0);
+  for(let s=0;s<TMAX*60;s++){const g=tgas(s/60);for(let k=0;k<NK;k++){const a=TABR[k]/(RHO*ca(Ts[k]));Ts[k]+=(g-Ts[k])*a/(1+a);}
+    if((s+1)%60===0)TABS.set(Ts,((s+1)/60)*NK);}
+  KAPPA=(85/rstar(60,500))/1003;
+}
+function rstar(t,th){
+  const i=Math.min(TMAX-1,Math.floor(t)),f=Math.min(1,t-i);
+  const lo=i*NK,hi=(i+1)*NK; const arr=new Float64Array(NK);for(let k=0;k<NK;k++)arr[k]=TABS[lo+k]*(1-f)+TABS[hi+k]*f;
+  if(th<=arr[0])return TABR[0]; if(th>=arr[NK-1])return TABR[NK-1];
+  let a=0,b=NK-1;while(b-a>1){const m=(a+b)>>1;if(arr[m]<=th)a=m;else b=m;}
+  const u=(th-arr[a])/(arr[b]-arr[a]);return Math.exp(Math.log(TABR[a])*(1-u)+Math.log(TABR[b])*u);
+}
+const thetaCr=mu=>39.19*Math.log(1/(0.9674*Math.pow(mu,3.833))-1)+482;
+const dftReq=(av,t,th)=>av/(KAPPA*rstar(Math.min(t,TMAX),th));
+const avTubo=(d,t)=>1000*4*d/(d*d-(d-2*t)*(d-2*t));
+const TUBOS=[[60,2.5],[73,2.5],[90,3],[114,3]];
+const TRM=3273.49,FT2=10.7639,L_TUBO=116000;
+const COST={cype:{c0:3419,c1:132.2},us:{c0:3.316*FT2*TRM,c1:0.002736*FT2*TRM}};
+let costBase="cype";
+function steelTemp(av,dft,tmax,prot){ // devuelve arreglos por minuto
+  const out=[20];let T=20;
+  for(let s=0;s<tmax*60;s++){const g=tgas(s/60);
+    if(prot){const a=av/(RHO*ca(T))/(KAPPA*dft);T+=(g-T)*a/(1+a);}
+    else{const q=25*(g-T)+0.7*5.67e-8*(Math.pow(g+273,4)-Math.pow(T+273,4));T+=q*av/(RHO*ca(T))*1;}
+    if((s+1)%60===0)out.push(T);}
+  return out;
+}
+function fire(){
+  if(!TABR)return;
+  const t=Math.max(1,+$("fT").value||60), mu=+$("fMu").value; $("oMu").textContent=fmt(mu,2);
+  const sel=$("fTube").value; let av;
+  if(sel==="free"){av=Math.max(0.1,+$("fAV").value||345);} else {const tb=TUBOS[+sel];av=avTubo(tb[0],tb[1]);$("fAV").value=fmt(av,0).replace(/\./g,"");}
+  const th=thetaCr(mu), dft=dftReq(av,t,th), cb=COST[costBase];
+  const cop=cb.c0+cb.c1*dft;
+  $("fTh").textContent=fmt(th,0)+" °C"; $("fDft").textContent=fmt(dft,0)+" µm"; $("fCop").textContent="$ "+fmt(cop,0);
+  if(sel!=="free"){const tb=TUBOS[+sel];$("fM").textContent="$ "+fmt(cop*Math.PI*tb[0]/1000,0);} else {$("fM").textContent="—";}
+  let tot=0;for(const tb of TUBOS){const av2=avTubo(tb[0],tb[1]);const d2=dftReq(av2,t,th);tot+=(cb.c0+cb.c1*d2)*(Math.PI*tb[0]/1000)*(L_TUBO/TUBOS.length);} $("fTot").textContent=fmt(tot/1e6,0)+" MM";
+  const tz=Math.pow(10,(420-20)/345);const tzm=(tz-1)/8; const u0=steelTemp(av,0,30,false);let ts=30;for(let m=1;m<u0.length;m++){if(u0[m]>=420){ts=m-1+(420-u0[m-1])/(u0[m]-u0[m-1]);break;}} $("fZn").textContent=fmt(ts,1)+" min"; $("fZs").textContent="en que el acero sin proteger llega a 420 °C, donde se funde el zinc (el gas del incendio, en "+fmt(tzm,1)+" min)";
+  const v=$("fVerd");
+  if(dft>5000){v.className="verdict bad";v.textContent="Más de 5.000 µm: una película delgada acuosa difícilmente lo alcanza. Probablemente requiere epóxico grueso (otro precio por micra) o diseño por desempeño.";}
+  else if(av>300){v.className="verdict warn";v.textContent="Factor de forma alto (> 300 m⁻¹): fuera del rango habitual de las tablas de los fabricantes. Se requiere la tabla certificada del fabricante para este factor.";}
+  else{v.className="verdict ok";v.textContent="Orden de magnitud. Confirmar con la tabla certificada del fabricante.";}
+  // gráfico
+  const {g,w,h}=fit($("fireCv"),300);const mx=Math.max(60,Math.ceil(t*1.25/10)*10),mt=Math.min(mx,TMAX);
+  const L=44,R=26,T=12,B=28,X=m=>L+(w-L-R)*m/mt, Y=temp=>h-B-(h-T-B)*temp/1100;
+  g.strokeStyle=css("--line");g.fillStyle=css("--mute");g.font="400 10px "+css("--m");g.lineWidth=1;
+  for(let T0=0;T0<=1000;T0+=250){g.beginPath();g.moveTo(L,Y(T0));g.lineTo(w-R,Y(T0));g.stroke();g.fillText(T0+" °C",2,Y(T0)+3);}
+  const stepM=mt>120?30:mt>60?20:10;for(let m=0;m<=mt;m+=stepM){g.fillText(m+" min",X(m)-12,h-10);}
+  // zinc 420
+  g.setLineDash([4,4]);g.strokeStyle=css("--mute");g.beginPath();g.moveTo(L,Y(420));g.lineTo(w-R,Y(420));g.stroke();g.fillStyle=css("--fg");g.fillText("zinc se funde ≈ 420 °C",L+6,Y(420)-5);
+  g.strokeStyle=css("--fuego");g.beginPath();g.moveTo(L,Y(th));g.lineTo(w-R,Y(th));g.stroke();g.fillStyle=css("--fuego");g.fillText("temperatura crítica "+fmt(th,0)+" °C",L+6,Y(th)-5);g.setLineDash([]);
+  const curve=(arr,col,wd)=>{g.strokeStyle=col;g.lineWidth=wd;g.beginPath();for(let m=0;m<=mt;m++){const T1=(arr===null)?tgas(m):arr[m];m?g.lineTo(X(m),Y(T1)):g.moveTo(X(m),Y(T1));}g.stroke();};
+  curve(null,css("--mute"),1.6);
+  const un=steelTemp(av,0,mt,false);curve(un,css("--bad"),2);
+  const pr=steelTemp(av,dft,mt,true);curve(pr,css("--agua"),2.5);
+  g.fillStyle=css("--mute");g.fillText("gas ISO 834",X(mt)-62,Y(tgas(mt))-6);g.fillStyle=css("--bad");g.fillText("acero sin proteger",X(mt)-100,Y(un[mt])+16);g.fillStyle=css("--agua");g.fillText("con "+fmt(dft,0)+" µm",X(mt)-78,Y(pr[mt])+16);
+  g.strokeStyle=css("--fg");g.lineWidth=1;g.setLineDash([2,3]);g.beginPath();g.moveTo(X(t),T);g.lineTo(X(t),h-B);g.stroke();g.setLineDash([]);
+}
+["fT","fAV","fMu","fTube"].forEach(i=>{$(i).addEventListener("input",()=>{ if(i==="fAV")$("fTube").value="free"; fire();});$(i).addEventListener("change",fire);});
+document.querySelectorAll("[data-c]").forEach(b=>b.addEventListener("click",()=>{costBase=b.dataset.c;document.querySelectorAll("[data-c]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));fire();}));
+
+/* edificios */
+const BLD={1:["Alto","180 min","90 min"],4:["Moderado","120 min","60 min"],7:["Bajo","60 min","60 min"],14:["Básico","0 min","0 min"]};
+function bld(n){document.querySelectorAll("[data-n]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.n===n)));const x=BLD[n];$("bArea").textContent=fmt(50000/n,0)+" m²";$("bTipo").textContent=x[0];$("bCol").textContent=x[1];$("bRoof").textContent=x[2];}
+document.querySelectorAll("[data-n]").forEach(b=>b.addEventListener("click",()=>bld(+b.dataset.n)));
+
+/* ===== zinc ===== */
+let zk="C4";
+function zinc(){
+  const t=+$("zT").value;$("oZ").textContent=t;
+  const r=zk==="C3"?[0.7,2.1]:[2.1,4.2];const lo=t/r[1],hi=t/r[0];
+  $("zYrs").textContent=fmt(lo,0)+" a "+fmt(hi,0)+" años";$("zBar").style.width=Math.min(100,hi/130*100)+"%";
+  const v=$("zVerd");v.className="verdict "+(lo>=25?"ok":"warn");
+  v.textContent=lo>=25?"El zinc respalda el primer repintado más allá del año 25 en el caso conservador.":lo>=15?"Primer repintado hacia el año 15 al 25, según la medición real del zinc.":"En el caso conservador el zinc llega al umbral hacia el año "+fmt(lo,0)+". En un contrato de 25 años, eso obliga a planear el primer repintado dúplex hacia el año 15 y a presupuestarlo, según lo que mida el zinc real.";
+}
+$("zT").addEventListener("input",zinc);
+document.querySelectorAll("[data-k]").forEach(b=>b.addEventListener("click",()=>{zk=b.dataset.k;document.querySelectorAll("[data-k]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));zinc();}));
+const ETAPAS=[["Años 0–1","Zinc íntegro","Línea base: espesor de zinc por barra y nudo, flechas, geometría y apriete. Certificados con trazabilidad. Verificar que el espesor cumpla ISO 1461."],
+["Años 1–5","Pérdida más rápida","Inspección anual: visual cercana, drenajes, flechas, tornillería. Instalar cupones de corrosión para calibrar la categoría (C3 o C4)."],
+["Años 5–15","Desgaste normal","Inspección cada dos años. Retoque de zonas dañadas y limpieza de drenajes antes de cada temporada de lluvias. Medición del zinc para ajustar la proyección."],
+["Hacia el año 15","Zinc cerca del umbral","Primer repintado dúplex en nudos, tornillería y zonas con condensación (25 % del área en el escenario C4). Sustitución de piezas con pérdida de sección."],
+["Años 25–40","Dúplex en servicio","Repintado de toda la superficie hacia el año 25 en C4 y revisión del estado de la pintura. Los años 35 y 40 son puntos de decisión según el estado real."],
+["Años 40–50","Fin de la vida de diseño","Repintado completo hacia el año 40 y parcial hacia el 50. Evaluación estructural de la malla para decidir si se extiende su vida."]];
+function tl(i){const box=$("tl");box.innerHTML="";ETAPAS.forEach((e,k)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-pressed",String(k===i));b.innerHTML="<b style='display:block;color:var(--fg)'>"+e[0]+"</b>"+e[1];b.addEventListener("click",()=>tl(k));box.appendChild(b);});const v=$("tlTxt");v.textContent=ETAPAS[i][2];}
+const COSTOS={hoy:{A:[4800,18300],B:[12000,23700]},nom:{B:[27519,87330]}};
+function costos(m){document.querySelectorAll("[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===m)));
+  const rows=m==="hoy"?[["A · 25 años",4800],["A · 50 años",18300],["B · 25 años",12000],["B · 50 años",23700]]:[["B · 25 años",27519],["B · 50 años",87330]];
+  const mx=m==="hoy"?25000:90000;$("mBars").innerHTML=rows.map(r=>"<div class='bar1'><span>"+r[0]+"</span><div class='tr'><i style='width:"+(r[1]/mx*100)+"%'></i></div><b class='mono'>"+fmt(r[1],0)+" MM</b></div>").join("");}
+document.querySelectorAll("[data-m]").forEach(b=>b.addEventListener("click",()=>costos(b.dataset.m)));
+
+/* ===== nudo: muestreo ===== */
+function minTests(N,R,C){const D=Math.ceil((1-R)*N-1e-9);let p=1;for(let n=1;n<=N;n++){p*=(N-D-(n-1))/(N-(n-1));if(p<=1-C+1e-12)return n;}return N;}
+function confN(N,R,n){const D=Math.ceil((1-R)*N-1e-9);let p=1;for(let i=0;i<n&&i<N;i++)p*=(N-D-i)/(N-i);return 1-p;}
+function muestreo(){
+  const N=Math.max(10,Math.round(+$("nN").value||1000)),R=+$("nR").value/100,C=+$("nC").value/100;$("oR").textContent=fmt(R*100,1);$("oC").textContent=fmt(C*100,1);
+  const n=minTests(N,R,C);$("nOut").textContent=fmt(n,0);$("nPct").textContent=fmt(n/N*100,1)+" %";$("n10").textContent=fmt(confN(N,R,10)*100,0)+" %";
+  const v=$("nVerd");v.className="verdict "+(confN(N,R,10)>=C?"ok":"bad");v.textContent=confN(N,R,10)>=C?"Con 10 ensayos sin falla ya se alcanza la confianza pedida para esta confiabilidad.":"Con 10 ensayos no se alcanza esta confianza. Se necesitan "+fmt(n,0)+".";
+  const {g,w,h}=fit($("nCv"),140);const L=36,B=22,Tp=8,maxN=Math.max(40,Math.min(N,Math.ceil(n*1.6/10)*10));
+  const X=k=>L+(w-L-8)*k/maxN,Y=p=>h-B-(h-B-Tp)*p;
+  g.strokeStyle=css("--line");g.fillStyle=css("--mute");g.font="400 10px "+css("--m");
+  [0,.5,1].forEach(p=>{g.beginPath();g.moveTo(L,Y(p));g.lineTo(w-8,Y(p));g.stroke();g.fillText(fmt(p*100,0)+" %",0,Y(p)+3);});
+  g.fillText("ensayos sin falla →",L,h-5);
+  g.strokeStyle=css("--cobre");g.lineWidth=2.4;g.beginPath();for(let k=0;k<=maxN;k++){const p=1-confN(N,R,k);k?g.lineTo(X(k),Y(p)):g.moveTo(X(k),Y(p));}g.stroke();
+  g.strokeStyle=css("--fg");g.setLineDash([3,3]);g.lineWidth=1;g.beginPath();g.moveTo(L,Y(1-C));g.lineTo(w-8,Y(1-C));g.moveTo(X(n),Tp);g.lineTo(X(n),h-B);g.stroke();g.setLineDash([]);
+  g.fillStyle=css("--cobre");g.fillText("prob. de aceptar un lote que no cumple",L+6,Tp+10);
+  g.beginPath();g.arc(X(10),Y(1-confN(N,R,10)),4,0,6.283);g.fill();
+}
+["nN","nR","nC"].forEach(i=>$(i).addEventListener("input",muestreo));
+
+/* ===== Hartford ===== */
+const HART=[["Euler ideal",802,249],["No lineal, imperfección L/1000",599,221],["+ excentricidad de nudo de 25 mm",352,176]];
+function hart(l){document.querySelectorAll("[data-l]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.l===l)));
+  $("hBars").innerHTML=HART.map(r=>"<div class='bar1' style='grid-template-columns:150px 1fr 70px'><span>"+r[0]+"</span><div class='tr'><i style='width:"+(r[1+l]/802*100)+"%'></i></div><b class='mono'>"+r[1+l]+" kN</b></div>").join("");
+  const bad=l===1;$("hVerd").className="verdict "+(bad?"bad":"ok");$("hVerd").textContent=bad?"Con el arriostramiento real (9,14 m) y la excentricidad de los nudos, la capacidad cae a 176 kN: un 29 % de los 599 kN que suponía el modelo.":"Con las hipótesis del modelo (4,57 m, nudos ideales) el cordón parecía resistir 599 kN.";}
+document.querySelectorAll("[data-l]").forEach(b=>b.addEventListener("click",()=>hart(+b.dataset.l)));
+
+/* ===== hitos ===== */
+const HITOS=[["Aprobación","Autorización como sistema no convencional",["Ruta: Ley 400, artículos 8 a 14; vía principal el artículo 13, con el 9 como encuadre alterno.","Alcance que se pide a la Comisión: la malla y sus nudos como sistema de cubierta, no solo los nudos (art. 14).","No comprometer fabricación en firme sin la autorización.","Multa potencial por construir sin cumplir (art. 51): 250 SMMLV al mes para 50.000 m². Por confirmar qué entidad aloja hoy la Comisión, cómo se radica y el plazo."]],
+["Diseño","Lo que se verifica antes de aprobar",["Revisión independiente de los diseños (el umbral de área debe verificarse: el texto de 2010 y la Ley 1796 de 2016 pueden diferir).","Verificación propia de órdenes de magnitud, no solo lectura de memorias.","Análisis no lineal con imperfecciones y verificación de colapso progresivo.","Peralte y módulo justificados para la luz real (48 m con columna central, y el caso de falla de esa columna con unos 96 m)."]],
+["Fabricación","Nudos, galvanizado y tornillería",["Certificados de material y trazabilidad por lote.","Ensayos de nudos y barras, con informe de calificación independiente y plan de muestreo.","Inspección del espesor de zinc y de los retoques.","Clase, recubrimiento y ensayos de los tornillos; cuidado con la fragilización por hidrógeno desde 33 HRC."]],
+["Montaje","Seis controles que se documentan",["Geometría as-built: medir flechas y geometría al terminar. Es la línea base.","Apriete y tornillería de cada tipo de nudo.","Retoques de zinc con procedimiento, espesor y registro fotográfico.","Drenajes y parapetos probados: los parapetos de 1 m retienen agua si el drenaje falla.","Ninguna carga colgada sin revisión estructural previa.","Nada se ejecuta sin aprobación del diseñador y registro escrito."]],
+["Recibo","Planos as-built y línea base",["Planos as-built con el cuadro de nudos y barras.","Memoria de cálculo y modelo estructural; peso real de la cubierta.","Línea base: flechas, geometría, espesores de zinc y apriete.","Manual de mantenimiento aprobado antes de recibir la obra."]],
+["Mantenimiento","Inspección y repintado a 25 y 50 años",["Plan de inspección programada y por evento.","Repintado dúplex según el estado real del zinc: los años 15, 25, 35, 40 y 50 son puntos de decisión.","Cada hallazgo con responsable, plazo y registro de cierre.","Gestión de cambios: cada abertura o carga nueva exige revisión estructural."]]];
+function hitos(i){const box=$("hBt");box.innerHTML="";HITOS.forEach((h,k)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-pressed",String(k===i));b.innerHTML="<b>"+(k+1)+"</b><span>"+h[0]+"</span>";b.addEventListener("click",()=>hitos(k));box.appendChild(b);});
+  $("hT").textContent="Hito "+(i+1)+" · "+HITOS[i][1];$("hL").innerHTML=HITOS[i][2].map(x=>"<li>"+x+"</li>").join("");}
+
+/* arranque */
+function redrawAll(){hero.draw();geo.draw();rainSize();pond();fire();muestreo();geoUpdate();}
+geoUpdate();pond();sism(1);bld(1);zinc();tl(3);costos("hoy");muestreo();hart(1);hitos(0);rainSize();
+if(reduce)rainDraw();else rainLoop();
+setTimeout(()=>{buildTable();fire();},30);
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{rainSize();pond();fire();muestreo();geoUpdate();},120);});
+})();
+</script>
+
+</body></html>
