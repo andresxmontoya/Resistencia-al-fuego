@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de intumescente</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1b2430;--mute:#5d6877;--line:#d8dde4;--acc:#c8501e;--acc2:#1f5f8b;--warn:#8a5a00;--warnbg:#fff4d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181d;--card:#1c222a;--ink:#e8ecf1;--mute:#9aa6b4;--line:#323b46;--acc:#ee8a5c;--acc2:#6bb0dc;--warn:#f0c46a;--warnbg:#3a2f14}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.card h2{font-size:1rem;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:3px}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,select:focus{outline:2px solid var(--acc2);outline-offset:1px}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:12px}
+.kpi b{display:block;font-size:1.5rem;color:var(--acc)}
+.kpi span{font-size:.8rem;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mute);font-weight:600}
+.note{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:10px 12px;margin:10px 0;font-size:.9rem}
+.small{font-size:.82rem;color:var(--mute)}
+details summary{cursor:pointer;font-weight:600}
+svg{width:100%;height:auto;display:block}
+button{padding:8px 12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;cursor:pointer;font:inherit}
+</style>
+</head>
+<body>
+<main>
+<h1>Calculadora de intumescente</h1>
+<p class="sub">Espesor indicativo (DFT) y costo según resistencia al fuego y factor de forma A/V. Sin límites en los datos de entrada.</p>
+
+<section class="card">
+<h2>Datos de entrada</h2>
+<div class="grid">
+<div><label for="t">Resistencia al fuego (min)</label><input id="t" type="number" step="any" value="60"></div>
+<div><label for="av">Factor de forma A/V (m⁻¹)</label><input id="av" type="number" step="any" value="345"></div>
+<div><label for="mode">Temperatura crítica</label>
+<select id="mode"><option value="mu">Desde el grado de utilización μ</option><option value="th">Directa (°C)</option></select></div>
+<div id="muBox"><label for="mu">Grado de utilización μ (0 a 1)</label><input id="mu" type="number" step="any" value="0.5"></div>
+<div id="thBox" hidden><label for="th">Temperatura crítica (°C)</label><input id="th" type="number" step="any" value="585"></div>
+<div><label for="area">Área de acero a proteger (m²)</label><input id="area" type="number" step="any" value="60000"></div>
+<div><label for="pum">Precio (COP por µm y m²)</label><input id="pum" type="number" step="any" value="135"></div>
+<div><label for="rec">Recargo (%) imprimante, acabado, altura</label><input id="rec" type="number" step="any" value="20"></div>
+</div>
+<details style="margin-top:12px"><summary>Calibración con CYPE (editable)</summary>
+<div class="grid" style="margin-top:10px">
+<div><label for="cDft">DFT de referencia (µm)</label><input id="cDft" type="number" step="any" value="1003"></div>
+<div><label for="cAv">A/V de referencia (m⁻¹)</label><input id="cAv" type="number" step="any" value="85"></div>
+<div><label for="cT">Resistencia de referencia (min)</label><input id="cT" type="number" step="any" value="60"></div>
+<div><label for="cTh">Temp. crítica de referencia (°C)</label><input id="cTh" type="number" step="any" value="500"></div>
+</div>
+<p class="small">Por defecto: la captura de CYPE, R60 con 1003 µm a 85 m⁻¹. La temperatura crítica de referencia (500 °C) es un supuesto.</p>
+</details>
+</section>
+
+<section class="card">
+<h2>Resultado</h2>
+<div id="msg"></div>
+<div class="big" id="kpis"></div>
+<div id="warn"></div>
+</section>
+
+<section class="card">
+<h2>Mismo factor de forma, otras resistencias</h2>
+<table id="tbl"></table>
+</section>
+
+<section class="card">
+<h2>Espesor según el factor de forma (para la resistencia elegida)</h2>
+<svg id="chart" viewBox="0 0 640 300" role="img" aria-label="DFT contra factor de forma"></svg>
+<p class="small">La línea punteada marca el factor de forma elegido.</p>
+</section>
+
+<section class="card small">
+<h2>Qué calcula y qué no</h2>
+<p>Modela el calentamiento del acero bajo la curva ISO 834 (calor específico de EN 1993-1-2, temperatura uniforme) y supone que el aislamiento del intumescente es proporcional a su espesor. El factor de aislamiento se calibra con un punto de CYPE. La temperatura crítica sale de EN 1993-1-2 (4.2.4): θcr = 39,19 ln(1/(0,9674 μ³·⁸³³) − 1) + 482.</p>
+<p>No reemplaza la tabla certificada del fabricante, que sale de ensayos (EN 13381-8, ASTM E119). No modela la masa térmica ni la fase previa a la expansión del intumescente. El modelo subestimó en 32 % el R90 de CYPE, así que a resistencias altas el espesor real puede ser mayor. Úsese para órdenes de magnitud y para pedir cotizaciones.</p>
+</section>
+</main>
+
+<script>
+const RHO=7850;
+function ca(T){
+  if(T<600) return 425+0.773*T-1.69e-3*T*T+2.22e-6*T*T*T;
+  if(T<735) return 666+13002/(738-T);
+  if(T<900) return 545+17820/(T-731);
+  return 650;
+}
+function tgas(tmin){return 20+345*Math.log10(8*tmin+1);}
+function tempAcero(av,dft,kappa,tmin){
+  const R=kappa*dft, dt=1; let Ts=20,t=0; const end=tmin*60;
+  while(t<end){ const a=av/(RHO*ca(Ts))/R*dt; Ts+=(tgas(t/60)-Ts)*a/(1+a); t+=dt; }
+  return Ts;
+}
+function calibrar(dft,av,tmin,th){
+  let lo=1e-9,hi=10;
+  for(let i=0;i<80;i++){
+    const m=(lo+hi)/2;
+    if(tempAcero(av,dft,m,tmin)>th) lo=m; else hi=m;
+  }
+  return (lo+hi)/2;
+}
+function dftReq(av,tmin,th,k){
+  let lo=0.5,hi=1e7;
+  if(tempAcero(av,hi,k,tmin)>th) return Infinity;
+  if(tempAcero(av,lo,k,tmin)<=th) return 0;
+  for(let i=0;i<60;i++){
+    const m=Math.sqrt(lo*hi);
+    if(tempAcero(av,m,k,tmin)>th) lo=m; else hi=m;
+  }
+  return hi;
+}
+function thetaCr(mu){return 39.19*Math.log(1/(0.9674*Math.pow(mu,3.833))-1)+482;}
+
+const $=id=>document.getElementById(id);
+const fmt=(x,d=0)=>x.toLocaleString("es-CO",{maximumFractionDigits:d,minimumFractionDigits:d});
+const num=id=>parseFloat($(id).value);
+
+function leer(){
+  const o={t:num("t"),av:num("av"),area:num("area"),pum:num("pum"),rec:num("rec")/100,
+    cDft:num("cDft"),cAv:num("cAv"),cT:num("cT"),cTh:num("cTh")};
+  o.th = $("mode").value==="mu" ? null : num("th");
+  o.mu = num("mu");
+  return o;
+}
+function validar(o){
+  const bad=[];
+  if(!(o.t>0)) bad.push("La resistencia al fuego debe ser mayor que 0 min.");
+  if(!(o.av>0)) bad.push("El factor de forma debe ser mayor que 0.");
+  if($("mode").value==="mu"){
+    if(!(o.mu>0&&o.mu<1)) bad.push("La utilización μ debe estar entre 0 y 1 (sin incluir los extremos).");
+  } else if(!(o.th>20)) bad.push("La temperatura crítica debe ser mayor que 20 °C.");
+  if(!(o.cDft>0&&o.cAv>0&&o.cT>0&&o.cTh>20)) bad.push("Revise la calibración: todos los valores deben ser positivos.");
+  return bad;
+}
+function kpi(v,l){return `<div class="kpi"><b>${v}</b><span>${l}</span></div>`;}
+
+function calcular(){
+  const o=leer(), bad=validar(o);
+  const msg=$("msg"), k=$("kpis"), w=$("warn");
+  if(bad.length){ msg.innerHTML=`<div class="note">${bad.join("<br>")}</div>`; k.innerHTML=""; w.innerHTML=""; $("tbl").innerHTML=""; $("chart").innerHTML=""; return; }
+  msg.innerHTML="";
+  const th = o.th ?? thetaCr(o.mu);
+  const kap = calibrar(o.cDft,o.cAv,o.cT,o.cTh);
+  const d = dftReq(o.av,o.t,th,kap);
+  if(!isFinite(d)){ k.innerHTML=""; w.innerHTML=`<div class="note">Con estos datos el acero no alcanza la temperatura crítica en ese tiempo ni con espesores extremos.</div>`; return; }
+  if(d===0){ k.innerHTML=kpi("0 µm","El acero no alcanza la temperatura crítica en ese tiempo sin protección"); w.innerHTML=""; return; }
+  const p=d*o.pum, pt=p*(1+o.rec), tot=pt*o.area;
+  k.innerHTML=
+    kpi(fmt(th)+" °C","Temperatura crítica")+
+    kpi(fmt(d)+" µm","Espesor seco indicativo (DFT)")+
+    kpi("$ "+fmt(p),"COP/m² (material y aplicación)")+
+    kpi("$ "+fmt(pt),"COP/m² con recargo de "+fmt(o.rec*100,0)+" %")+
+    kpi(fmt(tot/1e6)+" MM","Total, millones de COP");
+  let a="";
+  if(d>5000) a+=`<div class="note">Más de 5.000 µm: una película delgada acuosa difícilmente lo alcanza. Probablemente requiere epóxico de película gruesa, otro sistema (y otro precio por micra), o diseño por desempeño.</div>`;
+  if(o.av>300) a+=`<div class="note">Factor de forma alto (&gt;300 m⁻¹): fuera del rango habitual de las tablas de los fabricantes. Pida la tabla certificada.</div>`;
+  w.innerHTML=a;
+  tabla(o,th,kap); grafica(o,th,kap,d);
+}
+function tabla(o,th,kap){
+  const tiempos=[...new Set([30,60,90,120,180,o.t])].sort((a,b)=>a-b);
+  let h="<tr><th>Resistencia</th><th>DFT (µm)</th><th>COP/m²</th><th>Total (MM COP)</th></tr>";
+  for(const t of tiempos){
+    const d=dftReq(o.av,t,th,kap);
+    const marca = t===o.t ? " style=\"font-weight:700\"" : "";
+    if(!isFinite(d)){ h+=`<tr${marca}><td>R${fmt(t,0)}</td><td colspan="3">no alcanzable</td></tr>`; continue; }
+    const p=d*o.pum*(1+o.rec);
+    h+=`<tr${marca}><td>R${fmt(t,0)}</td><td>${fmt(d)}</td><td>${fmt(p)}</td><td>${fmt(p*o.area/1e6)}</td></tr>`;
+  }
+  $("tbl").innerHTML=h+`<tr><td colspan="4" class="small" style="text-align:left">Incluye el recargo. La fila en negrita es la resistencia elegida.</td></tr>`;
+}
+function grafica(o,th,kap,dSel){
+  const maxAv=Math.max(500,o.av*1.3), n=36, pts=[];
+  for(let i=1;i<=n;i++){ const av=maxAv*i/n; const d=dftReq(av,o.t,th,kap); if(isFinite(d)) pts.push([av,d]); }
+  const W=640,H=300,L=60,R=16,T=14,B=40;
+  const maxD=Math.max(...pts.map(p=>p[1]),dSel)*1.05||1;
+  const X=v=>L+(W-L-R)*v/maxAv, Y=v=>H-B-(H-T-B)*v/maxD;
+  let s=`<rect x="0" y="0" width="${W}" height="${H}" fill="none"/>`;
+  for(let i=0;i<=4;i++){ const v=maxD*i/4,y=Y(v);
+    s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="currentColor" opacity=".15"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="11" fill="currentColor" opacity=".7">${fmt(v)}</text>`; }
+  for(let i=0;i<=5;i++){ const v=maxAv*i/5,x=X(v);
+    s+=`<text x="${x}" y="${H-B+16}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".7">${fmt(v)}</text>`; }
+  s+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="currentColor">Factor de forma A/V (m⁻¹)</text>`;
+  s+=`<text transform="translate(14 ${H/2}) rotate(-90)" text-anchor="middle" font-size="12" fill="currentColor">DFT (µm)</text>`;
+  s+=`<polyline fill="none" stroke="var(--acc)" stroke-width="2.5" points="${pts.map(p=>X(p[0])+","+Y(p[1])).join(" ")}"/>`;
+  s+=`<line x1="${X(o.av)}" x2="${X(o.av)}" y1="${T}" y2="${H-B}" stroke="var(--acc2)" stroke-dasharray="5 4"/>`;
+  s+=`<circle cx="${X(o.av)}" cy="${Y(dSel)}" r="5" fill="var(--acc2)"/>`;
+  $("chart").innerHTML=s;
+}
+$("mode").addEventListener("change",()=>{const m=$("mode").value==="mu";$("muBox").hidden=!m;$("thBox").hidden=m;calcular();});
+document.querySelectorAll("input").forEach(e=>e.addEventListener("input",calcular));
+calcular();
+</script>
+</body>
+</html>
