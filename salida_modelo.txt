@@ -1,0 +1,46 @@
+r*(60 min, 500 C) = 1112.3 W/m3K
+R de calibracion = 0.0764 m2K/W  ->  conductividad equivalente sobre espesor seco = 0.0131 W/mK
+
+G = DFT/(A/V)  [um por m-1],  mu = 0,5 (theta_cr = 585 C)
+  R30   G =   3.27
+  R60   G =   8.54
+  R90   G =  14.54
+  R120  G =  21.02
+  R180  G =  34.96
+  exponente local G ~ t^n, n = 1.34 (ajuste R30-R120)
+  exponente implicito en CYPE (R60->R90, mismo A/V) = 1.96
+
+Elasticidades en R60, 345 m-1, mu 0,5:
+  dlnDFT/dlnt     = 1.33
+  dlnDFT/dlnA/V   = 1,00 (exacto)
+  DFT por +50 C de theta_cr: -532 um (-18 %)
+  DFT por +50 C de theta_ref: +615 um (+21 %)
+
+Costo afin CYPE:   c0 =      3,419 COP/m2   c1 =  132.2 COP/(um m2)
+Costo afin EE.UU.: c0 =    116,834 COP/m2   c1 =   96.4 COP/(um m2)  (FlameOFF, TRM 3273.49)
+Material EE.UU. por fisica: c1 = 97 a 171 COP/(um m2) (USD 90/gal, solidos 65-100 %, perdida 20-30 %)
+
+Punto central: 116,000 m de tubo (mezcla de igual longitud) = 30,703 m2; mu = 0,5; DFT dado a 345 m-1 (MM COP)
+  R60                  DFT   2947 um | CYPE afin   13,001 | EE.UU. afin   12,994
+  R90 (modelo)         DFT   5017 um | CYPE afin   22,057 | EE.UU. afin   19,600
+  R90 (empirico CYPE)  DFT   6532 um | CYPE afin   28,687 | EE.UU. afin   24,435
+  Banda EE.UU. generica USD 10-30/ft2 (Bahl): 10,818 a 32,455 MM, sin distinguir rating
+
+Monte Carlo (N=40000): theta_ref~U(450,550), mu~Tri(0.3,0.5,0.8), p~U(1.31,1.96), c1~U(material EE.UU.), c0~U(CYPE, EE.UU.)
+  R60: DFT P10/P50/P90 = 2443/3046/3793 um ; costo total = 11,433 / 15,289 / 20,068 MM COP
+     correlacion de rangos con el costo: theta_ref +0.43, mu +0.50, p -0.00, c1 +0.66, c0 +0.30
+  R90: DFT P10/P50/P90 = 4642/5917/7514 um ; costo total = 20,573 / 27,855 / 37,509 MM COP
+     correlacion de rangos con el costo: theta_ref +0.43, mu +0.49, p +0.29, c1 +0.65, c0 +0.16
+
+Tubos de la ficha del proveedor (A500 Gr. C). Espesores ASUMIDOS: Ø60 y Ø73 -> 2,5 mm; Ø90 y Ø114 -> 3,0 mm
+(mu 0,5; costo afin CYPE y EE.UU. por metro de tubo, y por m2 de superficie)
+  R60
+   Ø60x2.5: A/V  417  DFT   3565 um | CYPE  474,782 COP/m2   89,494 COP/m | EE.UU.  460,655 COP/m2   86,831 COP/m
+   Ø73x2.5: A/V  414  DFT   3538 um | CYPE  471,161 COP/m2  108,054 COP/m | EE.UU.  458,014 COP/m2  105,039 COP/m
+   Ø90x3.0: A/V  345  DFT   2946 um | CYPE  392,836 COP/m2  111,072 COP/m | EE.UU.  400,882 COP/m2  113,347 COP/m
+   Ø114x3.0: A/V  342  DFT   2924 um | CYPE  390,029 COP/m2  139,686 COP/m | EE.UU.  398,835 COP/m2  142,839 COP/m
+  R90
+   Ø60x2.5: A/V  417  DFT   6069 um | CYPE  805,811 COP/m2  151,892 COP/m | EE.UU.  702,114 COP/m2  132,345 COP/m
+   Ø73x2.5: A/V  414  DFT   6023 um | CYPE  799,646 COP/m2  183,388 COP/m | EE.UU.  697,617 COP/m2  159,989 COP/m
+   Ø90x3.0: A/V  345  DFT   5014 um | CYPE  666,314 COP/m2  188,396 COP/m | EE.UU.  600,363 COP/m2  169,749 COP/m
+   Ø114x3.0: A/V  342  DFT   4978 um | CYPE  661,537 COP/m2  236,924 COP/m | EE.UU.  596,878 COP/m2  213,767 COP/m

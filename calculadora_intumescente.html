@@ -48,7 +48,13 @@ button{padding:8px 12px;border:1px solid var(--line);background:var(--bg);color:
 <div id="muBox"><label for="mu">Grado de utilización μ (0 a 1)</label><input id="mu" type="number" step="any" value="0.5"></div>
 <div id="thBox" hidden><label for="th">Temperatura crítica (°C)</label><input id="th" type="number" step="any" value="585"></div>
 <div><label for="area">Área de acero a proteger (m²)</label><input id="area" type="number" step="any" value="60000"></div>
-<div><label for="pum">Precio (COP por µm y m²)</label><input id="pum" type="number" step="any" value="135"></div>
+<div><label for="preset">Base de costos</label><select id="preset"><option value="cype">CYPE Colombia</option><option value="us">EE. UU. (FlameOFF, TRM)</option><option value="man">Manual</option></select></div>
+<div><label for="c0">c₀: costo fijo (COP/m²)</label><input id="c0" type="number" step="any" value="3419"></div>
+<div><label for="c1">c₁: costo por µm (COP/µm·m²)</label><input id="c1" type="number" step="any" value="132.2"></div>
+<div><label for="trm">TRM (COP/USD)</label><input id="trm" type="number" step="any" value="3273.49"></div>
+<div><label for="dt">Tubo: diámetro (mm)</label><input id="dt" type="number" step="any" value="90"></div>
+<div><label for="et">Tubo: espesor (mm)</label><input id="et" type="number" step="any" value="3"></div>
+<div><label>&nbsp;</label><button id="btnav" type="button">Usar A/V del tubo</button></div>
 <div><label for="rec">Recargo (%) imprimante, acabado, altura</label><input id="rec" type="number" step="any" value="20"></div>
 </div>
 <details style="margin-top:12px"><summary>Calibración con CYPE (editable)</summary>
@@ -126,7 +132,7 @@ const fmt=(x,d=0)=>x.toLocaleString("es-CO",{maximumFractionDigits:d,minimumFrac
 const num=id=>parseFloat($(id).value);
 
 function leer(){
-  const o={t:num("t"),av:num("av"),area:num("area"),pum:num("pum"),rec:num("rec")/100,
+  const o={t:num("t"),av:num("av"),area:num("area"),c0:num("c0"),c1:num("c1"),rec:num("rec")/100,
     cDft:num("cDft"),cAv:num("cAv"),cT:num("cT"),cTh:num("cTh")};
   o.th = $("mode").value==="mu" ? null : num("th");
   o.mu = num("mu");
@@ -139,6 +145,7 @@ function validar(o){
   if($("mode").value==="mu"){
     if(!(o.mu>0&&o.mu<1)) bad.push("La utilización μ debe estar entre 0 y 1 (sin incluir los extremos).");
   } else if(!(o.th>20)) bad.push("La temperatura crítica debe ser mayor que 20 °C.");
+  if(!(o.c0>=0&&o.c1>=0)) bad.push("c₀ y c₁ deben ser no negativos.");
   if(!(o.cDft>0&&o.cAv>0&&o.cT>0&&o.cTh>20)) bad.push("Revise la calibración: todos los valores deben ser positivos.");
   return bad;
 }
@@ -154,7 +161,7 @@ function calcular(){
   const d = dftReq(o.av,o.t,th,kap);
   if(!isFinite(d)){ k.innerHTML=""; w.innerHTML=`<div class="note">Con estos datos el acero no alcanza la temperatura crítica en ese tiempo ni con espesores extremos.</div>`; return; }
   if(d===0){ k.innerHTML=kpi("0 µm","El acero no alcanza la temperatura crítica en ese tiempo sin protección"); w.innerHTML=""; return; }
-  const p=d*o.pum, pt=p*(1+o.rec), tot=pt*o.area;
+  const p=o.c0+d*o.c1, pt=p*(1+o.rec), tot=pt*o.area;
   k.innerHTML=
     kpi(fmt(th)+" °C","Temperatura crítica")+
     kpi(fmt(d)+" µm","Espesor seco indicativo (DFT)")+
@@ -174,7 +181,7 @@ function tabla(o,th,kap){
     const d=dftReq(o.av,t,th,kap);
     const marca = t===o.t ? " style=\"font-weight:700\"" : "";
     if(!isFinite(d)){ h+=`<tr${marca}><td>R${fmt(t,0)}</td><td colspan="3">no alcanzable</td></tr>`; continue; }
-    const p=d*o.pum*(1+o.rec);
+    const p=(o.c0+d*o.c1)*(1+o.rec);
     h+=`<tr${marca}><td>R${fmt(t,0)}</td><td>${fmt(d)}</td><td>${fmt(p)}</td><td>${fmt(p*o.area/1e6)}</td></tr>`;
   }
   $("tbl").innerHTML=h+`<tr><td colspan="4" class="small" style="text-align:left">Incluye el recargo. La fila en negrita es la resistencia elegida.</td></tr>`;
@@ -197,6 +204,18 @@ function grafica(o,th,kap,dSel){
   s+=`<circle cx="${X(o.av)}" cy="${Y(dSel)}" r="5" fill="var(--acc2)"/>`;
   $("chart").innerHTML=s;
 }
+
+function preset(){
+  const v=$("preset").value, trm=num("trm");
+  if(v==="cype"){ $("c0").value="3419"; $("c1").value="132.2"; }
+  if(v==="us"){ const f=10.7639; $("c0").value=Math.round(3.316*f*trm); $("c1").value=(0.002736*f*trm).toFixed(1); }
+}
+$("preset").addEventListener("change",()=>{preset();calcular();});
+$("trm").addEventListener("input",()=>{preset();calcular();});
+$("btnav").addEventListener("click",()=>{
+  const d=num("dt"), t=num("et"), di=d-2*t;
+  if(d>0&&t>0&&di>=0){ $("av").value=(1000*4*d/(d*d-di*di)).toFixed(0); calcular(); }
+});
 $("mode").addEventListener("change",()=>{const m=$("mode").value==="mu";$("muBox").hidden=!m;$("thBox").hidden=m;calcular();});
 document.querySelectorAll("input").forEach(e=>e.addEventListener("input",calcular));
 calcular();
